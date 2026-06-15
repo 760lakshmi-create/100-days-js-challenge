@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 1 — Rock Paper Scissors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css"/>
+    <script src="script.js" defer></script>
+
+</head>
+<body>
+<div class="wrapper">
+
+  <p class="badge">🏆 100 Days JS Challenge — Day 1</p>
+  <h1>Rock Paper <span>Scissors</span></h1>
+
+  <div class="scoreboard">
+    <div class="score-box you">
+      <div class="label">You</div>
+      <div class="num" id="scoreYou">0</div>
+    </div>
+    <div class="score-box draw">
+      <div class="label">Draw</div>
+      <div class="num" id="scoreDraw">0</div>
+    </div>
+    <div class="score-box cpu">
+      <div class="label">CPU</div>
+      <div class="num" id="scoreCPU">0</div>
+    </div>
+  </div>
+
+  <div class="arena" id="arena">
+    <div class="arena-side">
+      <div class="who">You</div>
+      <span class="arena-emoji" id="playerEmoji">🤔</span>
+    </div>
+    <div class="vs">VS</div>
+    <div class="arena-side">
+      <div class="who">CPU</div>
+      <span class="arena-emoji" id="cpuEmoji">🤖</span>
+    </div>
+  </div>
+
+  <p class="result-msg" id="resultMsg">Choose your move!</p>
+
+  <div class="choices">
+    <button class="choice-btn" onclick="play('rock')" title="Rock">
+      🪨
+      <span class="lbl">Rock</span>
+    </button>
+    <button class="choice-btn" onclick="play('paper')" title="Paper">
+      📄
+      <span class="lbl">Paper</span>
+    </button>
+    <button class="choice-btn" onclick="play('scissors')" title="Scissors">
+      ✂️
+      <span class="lbl">Scissors</span>
+    </button>
+  </div>
+
+  <button class="reset-btn" onclick="resetGame()">↺ Reset Scores</button>
+
+  <p class="footer">#100DaysOfCode &nbsp;|&nbsp; JavaScript &nbsp;|&nbsp; HTML &nbsp;|&nbsp; CSS</p>
+</div>
+
+
+</body>
+</html>
