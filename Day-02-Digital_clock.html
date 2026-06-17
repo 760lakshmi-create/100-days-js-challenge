@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digital Clock</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+    }
+
+    .date-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 300;
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: #00d2ff;
+      opacity: 0.6;
+      text-transform: uppercase;
+    }
+
+    .clock {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+    }
+
+    .segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .segment span {
+      font-size: clamp(4rem, 14vw, 9rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #e8f9ff;
+      text-shadow:
+        0 0 8px rgba(0, 210, 255, 0.6),
+        0 0 30px rgba(0, 210, 255, 0.25),
+        0 0 60px rgba(0, 210, 255, 0.1);
+      line-height: 1;
+      transition: text-shadow 0.3s ease;
+    }
+
+    .segment span.tick {
+      text-shadow:
+        0 0 12px rgba(0, 210, 255, 1),
+        0 0 40px rgba(0, 210, 255, 0.5),
+        0 0 80px rgba(0, 210, 255, 0.2);
+    }
+
+    .segment label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: #00d2ff;
+      opacity: 0.45;
+      text-transform: uppercase;
+    }
+
+    .colon {
+      font-size: clamp(3.5rem, 12vw, 8rem);
+      color: #00d2ff;
+      opacity: 0.4;
+      margin: 0 6px;
+      line-height: 1;
+      animation: blink 1s step-start infinite;
+      padding-bottom: 32px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.08; }
+    }
+
+    .ampm {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      color: #00d2ff;
+      border: 1px solid rgba(0, 210, 255, 0.3);
+      border-radius: 4px;
+      padding: 4px 8px;
+      align-self: flex-start;
+      margin-top: 12px;
+      margin-left: 10px;
+    }
+
+    .glow-bar {
+      width: 200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00d2ff, transparent);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
+      opacity: 0.5;
+    }
+
+    @media (max-width: 480px) {
+      .colon { margin: 0 2px; }
+      .ampm  { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="date-label" id="date"></div>
+
+    <div class="clock">
+      <div class="segment">
+        <span id="hours">00</span>
+        <label>HOURS</label>
+      </div>
+      <div class="colon">:</div>
+      <div class="segment">
+        <span id="minutes">00</span>
+        <label>MINUTES</label>
+      </div>
+      <div class="colon">:</div>
+      <div class="segment">
+        <span id="seconds">00</span>
+        <label>SECONDS</label>
+      </div>
+      <div class="ampm" id="ampm">AM</div>
+    </div>
+
+    <div class="glow-bar"></div>
+  </div>
+
+  <script>
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+
+    const hoursEl   = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const ampmEl    = document.getElementById('ampm');
+    const dateEl    = document.getElementById('date');
+
+    let prevSeconds = -1;
+
+    function updateClock() {
+      const now  = new Date();
+      let   h    = now.getHours();
+      const m    = now.getMinutes();
+      const s    = now.getSeconds();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+
+      h = h % 12 || 12;
+
+      hoursEl.textContent   = pad(h);
+      minutesEl.textContent = pad(m);
+      secondsEl.textContent = pad(s);
+      ampmEl.textContent    = ampm;
+
+      const day   = DAYS[now.getDay()];
+      const date  = now.getDate();
+      const month = MONTHS[now.getMonth()];
+      const year  = now.getFullYear();
+      dateEl.textContent = `${day}, ${date} ${month} ${year}`;
+
+      if (s !== prevSeconds) {
+        prevSeconds = s;
+        secondsEl.classList.add('tick');
+        setTimeout(() => secondsEl.classList.remove('tick'), 150);
+      }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
