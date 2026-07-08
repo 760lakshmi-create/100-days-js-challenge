@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Background Color Changer</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#6C63FF,#3F8EFC);
+transition:.6s;
+overflow:hidden;
+}
+
+.card{
+
+width:420px;
+padding:35px;
+border-radius:25px;
+background:rgba(255,255,255,.15);
+backdrop-filter:blur(18px);
+box-shadow:0 20px 40px rgba(0,0,0,.25);
+text-align:center;
+border:1px solid rgba(255,255,255,.2);
+
+}
+
+h1{
+
+color:white;
+margin-bottom:10px;
+
+}
+
+p{
+
+color:#eee;
+margin-bottom:25px;
+
+}
+
+.preview{
+
+width:180px;
+height:180px;
+border-radius:20px;
+margin:auto;
+background:white;
+border:6px solid rgba(255,255,255,.5);
+box-shadow:0 15px 35px rgba(0,0,0,.25);
+transition:.4s;
+
+}
+
+.hex{
+
+margin:25px 0;
+font-size:24px;
+font-weight:700;
+color:white;
+letter-spacing:2px;
+
+}
+
+input[type=color]{
+
+width:120px;
+height:55px;
+border:none;
+outline:none;
+cursor:pointer;
+border-radius:12px;
+background:none;
+
+}
+
+.buttons{
+
+display:flex;
+justify-content:center;
+gap:15px;
+margin-top:25px;
+flex-wrap:wrap;
+
+}
+
+button{
+
+padding:13px 25px;
+border:none;
+border-radius:50px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+transition:.3s;
+
+}
+
+.random{
+
+background:white;
+color:#333;
+
+}
+
+.random:hover{
+
+transform:translateY(-5px);
+box-shadow:0 12px 20px rgba(0,0,0,.2);
+
+}
+
+.copy{
+
+background:#111;
+color:white;
+
+}
+
+.copy:hover{
+
+background:#333;
+transform:translateY(-5px);
+
+}
+
+.reset{
+
+background:#ff5c8d;
+color:white;
+
+}
+
+.reset:hover{
+
+background:#ff2f6d;
+transform:translateY(-5px);
+
+}
+
+footer{
+
+margin-top:25px;
+color:#ddd;
+font-size:14px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🎨 Background Color Changer</h1>
+
+<p>Choose your favorite color or generate a random one.</p>
+
+<div class="preview" id="preview"></div>
+
+<div class="hex" id="hexCode">#6C63FF</div>
+
+<input type="color" id="picker" value="#6C63FF">
+
+<div class="buttons">
+
+<button class="random" onclick="randomColor()">
+🎲 Random
+</button>
+
+<button class="copy" onclick="copyColor()">
+📋 Copy
+</button>
+
+<button class="reset" onclick="resetColor()">
+🔄 Reset
+</button>
+
+</div>
+
+<footer>
+Made with ❤️ using HTML, CSS & JavaScript
+</footer>
+
+</div>
+
+<script>
+
+const picker=document.getElementById("picker");
+const preview=document.getElementById("preview");
+const hex=document.getElementById("hexCode");
+
+function applyColor(color){
+
+document.body.style.background=color;
+
+preview.style.background=color;
+
+hex.innerHTML=color.toUpperCase();
+
+picker.value=color;
+
+}
+
+picker.addEventListener("input",function(){
+
+applyColor(this.value);
+
+});
+
+function randomColor(){
+
+let letters="0123456789ABCDEF";
+let color="#";
+
+for(let i=0;i<6;i++){
+
+color+=letters[Math.floor(Math.random()*16)];
+
+}
+
+applyColor(color);
+
+}
+
+function copyColor(){
+
+navigator.clipboard.writeText(hex.innerHTML);
+
+alert("Copied : "+hex.innerHTML);
+
+}
+
+function resetColor(){
+
+applyColor("#6C63FF");
+
+}
+
+applyColor("#6C63FF");
+
+</script>
+
+</body>
+</html>
