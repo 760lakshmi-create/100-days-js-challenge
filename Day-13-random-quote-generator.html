@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 720px;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        .quote-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 56px 48px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 20px 60px -15px rgba(0,0,0,0.5),
+                0 0 100px -20px rgba(139, 92, 246, 0.15);
+        }
+
+        .quote-card:hover {
+            transform: translateY(-4px) rotateX(2deg);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 30px 80px -15px rgba(0,0,0,0.6),
+                0 0 120px -20px rgba(139, 92, 246, 0.25);
+        }
+
+        .card-glow {
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.15), transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(236, 72, 153, 0.1), transparent 50%);
+            pointer-events: none;
+            animation: glowShift 8s ease-in-out infinite;
+        }
+
+        @keyframes glowShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-5%, 5%) scale(1.05); }
+            66% { transform: translate(5%, -5%) scale(0.95); }
+        }
+
+        .accent-line {
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.6), rgba(59, 130, 246, 0.6), transparent);
+            border-radius: 0 0 2px 2px;
+        }
+
+        .quote-number {
+            position: absolute;
+            top: 24px; right: 32px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .deco-quote {
+            position: absolute;
+            top: 20px; left: 32px;
+            font-family: 'Playfair Display', serif;
+            font-size: 180px;
+            line-height: 1;
+            color: rgba(139, 92, 246, 0.06);
+            pointer-events: none;
+            user-select: none;
+            font-style: italic;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 100px;
+            margin-bottom: 32px;
+            transition: all 0.4s ease;
+        }
+
+        .category-pill:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .category-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .category-text {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #a78bfa;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            line-height: 1.5;
+            color: #f8fafc;
+            font-weight: 400;
+            margin-bottom: 32px;
+            min-height: 126px;
+            display: flex;
+            align-items: center;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            text-wrap: pretty;
+        }
+
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .author-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .author-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: 0.3px;
+        }
+
+        .author-role {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 400;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            margin-bottom: 32px;
+        }
+
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .action-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border-radius: 14px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-icon-btn {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            padding: 0;
+        }
+
+        .btn-icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+        }
+
+        .btn-icon-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon-btn svg {
+            width: 18px; height: 18px;
+        }
+
+        .keyboard-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+            font-weight: 500;
+        }
+
+        .kbd {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: 14px 28px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-icon {
+            width: 18px; height: 18px;
+            color: #34d399;
+        }
+
+        .fade-out {
+            opacity: 0 !important;
+            transform: translateY(12px) !important;
+        }
+
+        .fade-in {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        @media (max-width: 640px) {
+            .quote-card { padding: 40px 28px; border-radius: 24px; }
+            .quote-text { font-size: 22px; min-height: 100px; }
+            .deco-quote { font-size: 120px; }
+            .action-bar { flex-wrap: wrap; }
+            .keyboard-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <div class="quote-card" id="quoteCard">
+            <div class="card-glow"></div>
+            <div class="accent-line"></div>
+            <span class="quote-number" id="quoteNumber">#01</span>
+            <div class="deco-quote">"</div>
+
+            <div class="card-content">
+                <div class="category-pill">
+                    <span class="category-dot"></span>
+                    <span class="category-text" id="quoteCategory">Inspiration</span>
+                </div>
+
+                <p class="quote-text" id="quoteText">The only way to do great work is to love what you do.</p>
+
+                <div class="author-section">
+                    <div class="author-avatar" id="authorAvatar">SJ</div>
+                    <div class="author-info">
+                        <span class="author-name" id="quoteAuthor">Steve Jobs</span>
+                        <span class="author-role" id="authorRole">Co-founder, Apple Inc.</span>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="action-bar">
+                    <div class="action-left">
+                        <button class="btn btn-icon-btn" id="copyBtn" title="Copy quote">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                            </svg>
+                        </button>
+                        <button class="btn btn-icon-btn" id="tweetBtn" title="Share on X">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-primary" id="newQuoteBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                        </svg>
+                        New Quote
+                    </button>
+
+                    <div class="keyboard-hint">
+                        <span class="kbd">Space</span>
+                        <span>to shuffle</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">
+        <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        <span id="toastText">Copied to clipboard</span>
+    </div>
+
+    <script>
+        const quotes = [
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", role: "Co-founder, Apple Inc.", category: "Inspiration" },
+            { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein", role: "Theoretical Physicist", category: "Wisdom" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", role: "Chinese Philosopher", category: "Perseverance" },
+            { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair", role: "Motivational Speaker", category: "Courage" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", role: "Former UK Prime Minister", category: "Resilience" },
+            { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb", role: "Ancient Wisdom", category: "Action" },
+            { text: "Your limitation—it's only your imagination.", author: "Unknown", role: "Timeless Truth", category: "Mindset" },
+            { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown", role: "Daily Motivation", category: "Motivation" },
+            { text: "Great things never came from comfort zones.", author: "Unknown", role: "Life Advice", category: "Growth" },
+            { text: "Dream it. Wish it. Do it.", author: "Unknown", role: "Simple Truth", category: "Dreams" },
+            { text: "Success doesn't just find you. You have to go out and get it.", author: "Unknown", role: "Hustle Culture", category: "Hustle" },
+            { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Unknown", role: "Achievement Mindset", category: "Achievement" },
+            { text: "Dream bigger. Do bigger.", author: "Unknown", role: "Ambition Fuel", category: "Ambition" },
+            { text: "Don't stop when you're tired. Stop when you're done.", author: "Unknown", role: "Endurance Quote", category: "Endurance" },
+            { text: "Wake up with determination. Go to bed with satisfaction.", author: "Unknown", role: "Daily Discipline", category: "Discipline" },
+            { text: "Do something today that your future self will thank you for.", author: "Sean Patrick Flanery", role: "Actor & Author", category: "Future" },
+            { text: "Little things make big days.", author: "Unknown", role: "Consistency Note", category: "Consistency" },
+            { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney", role: "Founder, Disney", category: "Action" },
+            { text: "Don't let yesterday take up too much of today.", author: "Will Rogers", role: "American Humorist", category: "Presence" },
+            { text: "You learn more from failure than from success. Don't let it stop you.", author: "Unknown", role: "Growth Mindset", category: "Learning" },
+            { text: "It's not whether you get knocked down, it's whether you get up.", author: "Vince Lombardi", role: "NFL Legend", category: "Resilience" },
+            { text: "If you are working on something that you really care about, you don't have to be pushed. The vision pulls you.", author: "Steve Jobs", role: "Co-founder, Apple Inc.", category: "Passion" },
+            { text: "People who are crazy enough to think they can change the world, are the ones who do.", author: "Rob Siltanen", role: "Advertising Executive", category: "Innovation" },
+            { text: "Failure will never overtake me if my determination to succeed is strong enough.", author: "Og Mandino", role: "Author", category: "Determination" },
+            { text: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou", role: "Poet & Activist", category: "Strength" },
+            { text: "Knowing is not enough; we must apply. Wishing is not enough; we must do.", author: "Johann Wolfgang Von Goethe", role: "German Writer", category: "Execution" },
+            { text: "Imagine your life is perfect in every respect; what would it look like?", author: "Brian Tracy", role: "Motivational Speaker", category: "Vision" },
+            { text: "We generate fears while we sit. We overcome them by action.", author: "Dr. Henry Link", role: "Psychologist", category: "Fear" },
+            { text: "Whether you think you can or think you can't, you're right.", author: "Henry Ford", role: "Founder, Ford Motor", category: "Belief" },
+            { text: "Security is mostly a superstition. Life is either a daring adventure or nothing.", author: "Helen Keller", role: "Author & Activist", category: "Adventure" },
+            { text: "The man who has confidence in himself gains the confidence of others.", author: "Hasidic Proverb", role: "Ancient Wisdom", category: "Confidence" },
+            { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt", role: "32nd US President", category: "Hope" },
+            { text: "Creativity is intelligence having fun.", author: "Albert Einstein", role: "Theoretical Physicist", category: "Creativity" },
+            { text: "What you get by achieving your goals is not as important as what you become by achieving your goals.", author: "Zig Ziglar", role: "Motivational Speaker", category: "Growth" },
+            { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama", role: "Spiritual Leader", category: "Happiness" },
+            { text: "The pessimist sees difficulty in every opportunity. The optimist sees opportunity in every difficulty.", author: "Winston Churchill", role: "Former UK Prime Minister", category: "Perspective" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson", role: "Humorist", category: "Persistence" },
+            { text: "Keep your face always toward the sunshine—and shadows will fall behind you.", author: "Walt Whitman", role: "Poet", category: "Positivity" },
+            { text: "The best revenge is massive success.", author: "Frank Sinatra", role: "Singer & Actor", category: "Success" },
+            { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas Edison", role: "Inventor", category: "Innovation" }
+        ];
+
+        const categoryColors = {
+            "Inspiration": "#8b5cf6", "Wisdom": "#06b6d4", "Perseverance": "#f59e0b", "Courage": "#ef4444",
+            "Resilience": "#ec4899", "Action": "#10b981", "Mindset": "#6366f1", "Motivation": "#f97316",
+            "Growth": "#14b8a6", "Dreams": "#a855f7", "Hustle": "#f43f5e", "Achievement": "#3b82f6",
+            "Ambition": "#d946ef", "Endurance": "#84cc16", "Discipline": "#64748b", "Future": "#0ea5e9",
+            "Consistency": "#22c55e", "Presence": "#f59e0b", "Learning": "#8b5cf6", "Passion": "#ec4899",
+            "Innovation": "#06b6d4", "Determination": "#ef4444", "Strength": "#f97316", "Execution": "#10b981",
+            "Vision": "#a855f7", "Fear": "#6366f1", "Belief": "#d946ef", "Adventure": "#f43f5e",
+            "Confidence": "#3b82f6", "Hope": "#14b8a6", "Creativity": "#f59e0b", "Happiness": "#22c55e",
+            "Perspective": "#0ea5e9", "Persistence": "#ec4899", "Positivity": "#f97316", "Success": "#10b981"
+        };
+
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        const quoteText = document.getElementById('quoteText');
+        const quoteAuthor = document.getElementById('quoteAuthor');
+        const authorAvatar = document.getElementById('authorAvatar');
+        const authorRole = document.getElementById('authorRole');
+        const quoteCategory = document.getElementById('quoteCategory');
+        const quoteNumber = document.getElementById('quoteNumber');
+        const categoryDot = document.querySelector('.category-dot');
+        const newQuoteBtn = document.getElementById('newQuoteBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const tweetBtn = document.getElementById('tweetBtn');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function getRandomIndex() {
+            let idx;
+            do { idx = Math.floor(Math.random() * quotes.length); }
+            while (idx === currentIndex && quotes.length > 1);
+            return idx;
+        }
+
+        function updateCategoryColor(category) {
+            const color = categoryColors[category] || '#8b5cf6';
+            categoryDot.style.background = color;
+            categoryDot.style.boxShadow = `0 0 8px ${color}99`;
+            document.querySelector('.category-pill').style.borderColor = color + '33';
+            document.querySelector('.category-pill').style.background = color + '15';
+            quoteCategory.style.color = color;
+            authorAvatar.style.background = `linear-gradient(135deg, ${color}, ${color}88)`;
+            authorAvatar.style.boxShadow = `0 0 20px ${color}44`;
+        }
+
+        // Animated Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.radius = Math.random() * 2 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(139, 92, 246, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(139, 92, 246, ${0.08 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateCanvas() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            drawLines();
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        function showQuote(index) {
+            if (isAnimating) return;
+            isAnimating = true;
+            currentIndex = index;
+            const q = quotes[index];
+
+            quoteText.classList.add('fade-out');
+            quoteAuthor.classList.add('fade-out');
+            authorRole.classList.add('fade-out');
+            quoteCategory.classList.add('fade-out');
+
+            setTimeout(() => {
+                quoteText.textContent = q.text;
+                quoteAuthor.textContent = q.author;
+                authorRole.textContent = q.role;
+                quoteCategory.textContent = q.category;
+                quoteNumber.textContent = '#' + String(index + 1).padStart(2, '0');
+                authorAvatar.textContent = getInitials(q.author);
+                updateCategoryColor(q.category);
+
+                quoteText.classList.remove('fade-out');
+                quoteAuthor.classList.remove('fade-out');
+                authorRole.classList.remove('fade-out');
+                quoteCategory.classList.remove('fade-out');
+
+                isAnimating = false;
+            }, 400);
+        }
+
+        function generateQuote() {
+            showQuote(getRandomIndex());
+        }
+
+        function copyQuote() {
+            const text = `"${quotes[currentIndex].text}" — ${quotes[currentIndex].author}`;
+            navigator.clipboard.writeText(text).then(() => {
+                toastText.textContent = 'Copied to clipboard';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+
+        function tweetQuote() {
+            const text = `"${quotes[currentIndex].text}" — ${quotes[currentIndex].author}`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        newQuoteBtn.addEventListener('click', generateQuote);
+        copyBtn.addEventListener('click', copyQuote);
+        tweetBtn.addEventListener('click', tweetQuote);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.repeat && e.target === document.body) {
+                e.preventDefault();
+                generateQuote();
+            }
+        });
+
+        // 3D Tilt Effect
+        const card = document.getElementById('quoteCard');
+        document.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            const rotateX = (y / rect.height) * -4;
+            const rotateY = (x / rect.width) * 4;
+            card.style.transform = `translateY(-4px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+        });
+    </script>
+</body>
+</html>
