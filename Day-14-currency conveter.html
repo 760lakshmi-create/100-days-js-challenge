@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+        /* Set background gradient and full screen height */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(45deg, #00c2d4, #72def9);
+            color: white;
+        }
+
+        /* Center the converter container */
+        .converter {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            border: 1px solid black;
+            text-align: center;
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+        }
+
+        /* Heading styling */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #0f0f0f;
+        }
+
+        /* Label and input styling */
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input, select, button {
+            width: 91%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        input, select {
+            text-align: center;
+        }
+
+        button {
+            background-color: #282828;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ffffff;
+            color: #282828;
+        }
+
+        /* Result section styling */
+        .result {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fcfcfb;
+            margin-top: 15px;
+        }
+
+        /* Animation for the result display */
+        .result {
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Styling for the select dropdown and inputs */
+        select, input {
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: rgb(7, 7, 7);
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="converter">
+        <h1>Currency Converter</h1>
+        
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" placeholder="Enter amount" />
+        
+        <label for="fromCurrency">From Currency:</label>
+        <select id="fromCurrency">
+            <option value="USD">USD - US Dollar</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - British Pound</option>
+        </select>
+        
+        <label for="toCurrency">To Currency:</label>
+        <select id="toCurrency">
+            <option value="EUR">EUR - Euro</option>
+            <option value="USD">USD - US Dollar</option>
+            <option value="GBP">GBP - British Pound</option>
+        </select>
+        
+        <button onclick="convertCurrency()">Convert</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Exchange rate data (for simplicity, these are fixed rates)
+        const exchangeRates = {
+            "USD": { "EUR": 0.92, "GBP": 0.75 },
+            "EUR": { "USD": 1.09, "GBP": 0.82 },
+            "GBP": { "USD": 1.33, "EUR": 1.22 }
+        };
+
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const fromCurrency = document.getElementById("fromCurrency").value;
+            const toCurrency = document.getElementById("toCurrency").value;
+
+            // Validate input
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount");
+                return;
+            }
+
+            // Get the exchange rate
+            const rate = exchangeRates[fromCurrency][toCurrency];
+            
+            // Calculate the converted amount
+            const convertedAmount = (amount * rate).toFixed(2);
+            
+            // Display the result
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = `${amount} ${fromCurrency} = ${convertedAmount} ${toCurrency}`;
+            resultDiv.style.animation = "fadeIn 1s forwards"; // Animation effect
+        }
+    </script>
+</body>
+</html>
