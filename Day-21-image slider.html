@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Slider</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f0f1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 20px;
+    }
+
+    :root {
+      --bg: #0f0f1a;
+      --card-bg: #1a1a2e;
+      --accent: #00d4ff;
+      --accent-2: #ff6b6b;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --radius: 16px;
+      --shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .slider-wrapper {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--card-bg);
+    }
+
+    .slides-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+
+    .slide:hover img {
+      transform: scale(1.05);
+    }
+
+    .slide-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 30px 30px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      color: white;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.4s ease 0.2s;
+    }
+
+    .slide.active .slide-overlay {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .slide-overlay h3 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .slide-overlay p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+
+    .slide-tag {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease 0.3s;
+    }
+
+    .slide.active .slide-tag {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Navigation Arrows */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+      outline: none;
+    }
+
+    .nav-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .nav-btn.prev { left: 20px; }
+    .nav-btn.next { right: 20px; }
+
+    /* Dots */
+    .dots-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--text-dim);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 0;
+    }
+
+    .dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: scale(1.2);
+    }
+
+    .dot.active::after {
+      border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent);
+      transition: width 0.1s linear;
+      z-index: 10;
+    }
+
+    /* Thumbnails */
+    .thumbnails {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+
+    .thumbnails::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .thumbnails::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .thumb {
+      min-width: 100px;
+      height: 65px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb:hover {
+      opacity: 0.8;
+      transform: translateY(-2px);
+    }
+
+    .thumb.active {
+      opacity: 1;
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Counter */
+    .counter {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 10;
+      letter-spacing: 1px;
+    }
+
+    /* Play/Pause */
+    .play-pause {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.4);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+      font-size: 0.9rem;
+    }
+
+    .play-pause:hover {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* Swipe hint */
+    .swipe-hint {
+      text-align: center;
+      margin-top: 12px;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .slider-container { height: 320px; }
+      .slide-overlay h3 { font-size: 1.3rem; }
+      .nav-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+      .thumb { min-width: 70px; height: 50px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slider-wrapper">
+    <div class="slider-container" id="slider">
+      <div class="counter" id="counter">1 / 5</div>
+      
+      <div class="slides-track" id="track">
+        <div class="slide active">
+          <div class="slide-tag">Nature</div>
+          <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&h=500&fit=crop" alt="Mountain landscape">
+          <div class="slide-overlay">
+            <h3>Alpine Peaks</h3>
+            <p>Majestic mountain ranges stretching across the horizon at golden hour.</p>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-tag">Ocean</div>
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&h=500&fit=crop" alt="Tropical beach">
+          <div class="slide-overlay">
+            <h3>Tropical Paradise</h3>
+            <p>Crystal clear waters meeting pristine white sands under endless skies.</p>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-tag">Urban</div>
+          <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&h=500&fit=crop" alt="City skyline">
+          <div class="slide-overlay">
+            <h3>City Lights</h3>
+            <p>The pulse of urban life captured in steel, glass, and neon glow.</p>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-tag">Forest</div>
+          <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&h=500&fit=crop" alt="Dense forest">
+          <div class="slide-overlay">
+            <h3>Deep Woods</h3>
+            <p>Sunlight filtering through ancient canopies in a timeless woodland.</p>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-tag">Desert</div>
+          <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=900&h=500&fit=crop" alt="Desert dunes">
+          <div class="slide-overlay">
+            <h3>Golden Dunes</h3>
+            <p>Endless waves of sand sculpted by wind under a blazing sun.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-bar" id="progress"></div>
+
+      <button class="nav-btn prev" id="prevBtn" aria-label="Previous slide">&#10094;</button>
+      <button class="nav-btn next" id="nextBtn" aria-label="Next slide">&#10095;</button>
+
+      <button class="play-pause" id="playPause" aria-label="Toggle autoplay">&#9658;</button>
+    </div>
+
+    <div class="dots-container" id="dots"></div>
+
+    <div class="thumbnails" id="thumbnails"></div>
+
+    <div class="swipe-hint">
+      <span>&#8592;</span> Swipe or drag to navigate <span>&#8594;</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const slider = document.getElementById('slider');
+      const track = document.getElementById('track');
+      const slides = document.querySelectorAll('.slide');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const dotsContainer = document.getElementById('dots');
+      const thumbsContainer = document.getElementById('thumbnails');
+      const counter = document.getElementById('counter');
+      const progressBar = document.getElementById('progress');
+      const playPause = document.getElementById('playPause');
+
+      let current = 0;
+      const total = slides.length;
+      let autoplay = false;
+      let interval = null;
+      let progressInterval = null;
+      const autoplayDelay = 4000;
+
+      // Initialize dots
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      });
+
+      // Initialize thumbnails
+      slides.forEach((slide, i) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb' + (i === 0 ? ' active' : '');
+        const img = slide.querySelector('img').cloneNode();
+        thumb.appendChild(img);
+        thumb.addEventListener('click', () => goTo(i));
+        thumbsContainer.appendChild(thumb);
+      });
+
+      const dots = document.querySelectorAll('.dot');
+      const thumbs = document.querySelectorAll('.thumb');
+
+      function update() {
+        track.style.transform = `translateX(-${current * 100}%)`;
+
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === current);
+        });
+
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === current);
+        });
+
+        thumbs.forEach((thumb, i) => {
+          thumb.classList.toggle('active', i === current);
+          if (i === current) {
+            thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+        });
+
+        counter.textContent = `${current + 1} / ${total}`;
+        resetProgress();
+      }
+
+      function goTo(index) {
+        current = (index + total) % total;
+        update();
+      }
+
+      function next() { goTo(current + 1); }
+      function prev() { goTo(current - 1); }
+
+      prevBtn.addEventListener('click', () => { prev(); stopAutoplay(); });
+      nextBtn.addEventListener('click', () => { next(); stopAutoplay(); });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { prev(); stopAutoplay(); }
+        if (e.key === 'ArrowRight') { next(); stopAutoplay(); }
+      });
+
+      // Touch / Swipe
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      slider.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      slider.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) {
+          diff > 0 ? next() : prev();
+          stopAutoplay();
+        }
+      }, { passive: true });
+
+      // Mouse drag
+      let isDragging = false;
+      let dragStartX = 0;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        slider.style.cursor = 'grabbing';
+      });
+
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+      });
+
+      slider.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        slider.style.cursor = 'default';
+        const diff = dragStartX - e.clientX;
+        if (Math.abs(diff) > 50) {
+          diff > 0 ? next() : prev();
+          stopAutoplay();
+        }
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isDragging = false;
+        slider.style.cursor = 'default';
+      });
+
+      // Autoplay
+      function startAutoplay() {
+        if (interval) return;
+        autoplay = true;
+        playPause.innerHTML = '&#10074;&#10074;';
+        interval = setInterval(next, autoplayDelay);
+        startProgress();
+      }
+
+      function stopAutoplay() {
+        autoplay = false;
+        playPause.innerHTML = '&#9658;';
+        clearInterval(interval);
+        interval = null;
+        clearInterval(progressInterval);
+        progressBar.style.width = '0%';
+      }
+
+      function toggleAutoplay() {
+        autoplay ? stopAutoplay() : startAutoplay();
+      }
+
+      playPause.addEventListener('click', toggleAutoplay);
+
+      // Progress bar
+      function startProgress() {
+        let width = 0;
+        const step = 100 / (autoplayDelay / 50);
+        clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+          width += step;
+          if (width >= 100) width = 0;
+          progressBar.style.width = width + '%';
+        }, 50);
+      }
+
+      function resetProgress() {
+        if (autoplay) {
+          clearInterval(progressInterval);
+          progressBar.style.width = '0%';
+          startProgress();
+        }
+      }
+
+      // Hover pause
+      slider.addEventListener('mouseenter', () => {
+        if (autoplay) {
+          clearInterval(interval);
+          clearInterval(progressInterval);
+        }
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        if (autoplay) {
+          interval = setInterval(next, autoplayDelay);
+          startProgress();
+        }
+      });
+
+      // Initialize
+      update();
+    })();
+  </script>
+
+</body>
+</html>
