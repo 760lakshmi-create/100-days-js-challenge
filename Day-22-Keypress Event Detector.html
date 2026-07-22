@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Code Event Listener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #1e1e1e, #000000);
+            color: black;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+        }
+        .key-code {
+            font-size: 60px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .info-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+        .info-title {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Key Code Event Listener</h1>
+        <p>Key Code</p>
+        <div class="key-code" id="keyCode">Press a key</div>
+        <p>Key Code Information</p>
+        <div class="info-container">
+            <div class="info-box">
+                <div id="eventKey">-</div>
+                <div class="info-title">event.key</div>
+            </div>
+            <div class="info-box">
+                <div id="eventLocation">-</div>
+                <div class="info-title">event.location</div>
+            </div>
+            <div class="info-box">
+                <div id="eventCode">-</div>
+                <div class="info-title">event.code</div>
+            </div>
+            <div class="info-box">
+                <div id="eventWhich">-</div>
+                <div class="info-title">event.which</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("keydown", function(event) {
+            document.getElementById("keyCode").textContent = event.keyCode;
+            document.getElementById("eventKey").textContent = event.key;
+            document.getElementById("eventLocation").textContent = event.location;
+            document.getElementById("eventCode").textContent = event.code;
+            document.getElementById("eventWhich").textContent = event.which;
+        });
+    </script>
+</body>
+</html>
