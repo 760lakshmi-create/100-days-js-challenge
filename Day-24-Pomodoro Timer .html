@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background: #0d0d0d;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            width: 320px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .timer {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: auto;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            color: black;
+            border: 5px solid red;
+        }
+        .adjustments {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .adjustments p {
+            margin: 10px 0;
+        }
+        .adjustments button {
+            background: red;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .controls button {
+            background: grey;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            flex: 1;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer" id="timer">25:00</div>
+        <div class="adjustments">
+            <div>
+                <p>Session: <span id="session-time">25</span> min</p>
+                <button id="session-decrease">-</button>
+                <button id="session-increase">+</button>
+            </div>
+            <div>
+                <p>Break: <span id="break-time">5</span> min</p>
+                <button id="break-decrease">-</button>
+                <button id="break-increase">+</button>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
+        </div>
+    </div>
+    <script>
+        let timer;
+        let isRunning = false;
+        let sessionTime = 25 * 60;
+        let breakTime = 5 * 60;
+        let timeLeft = sessionTime;
+        let isSession = true;
+
+        function updateDisplay() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            document.getElementById("timer").innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        document.getElementById("start").addEventListener("click", () => {
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateDisplay();
+                    } else {
+                        isSession = !isSession;
+                        timeLeft = isSession ? sessionTime : breakTime;
+                        updateDisplay();
+                    }
+                }, 1000);
+            }
+        });
+
+        document.getElementById("stop").addEventListener("click", () => {
+            clearInterval(timer);
+            isRunning = false;
+        });
+
+        document.getElementById("session-increase").addEventListener("click", () => {
+            sessionTime += 60;
+            document.getElementById("session-time").innerText = sessionTime / 60;
+            if (isSession) timeLeft = sessionTime;
+            updateDisplay();
+        });
+
+        document.getElementById("session-decrease").addEventListener("click", () => {
+            if (sessionTime > 60) {
+                sessionTime -= 60;
+                document.getElementById("session-time").innerText = sessionTime / 60;
+                if (isSession) timeLeft = sessionTime;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById("break-increase").addEventListener("click", () => {
+            breakTime += 60;
+            document.getElementById("break-time").innerText = breakTime / 60;
+            if (!isSession) timeLeft = breakTime;
+        });
+
+        document.getElementById("break-decrease").addEventListener("click", () => {
+            if (breakTime > 60) {
+                breakTime -= 60;
+                document.getElementById("break-time").innerText = breakTime / 60;
+                if (!isSession) timeLeft = breakTime;
+            }
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
