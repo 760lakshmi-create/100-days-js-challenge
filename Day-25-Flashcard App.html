@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard App</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: background 0.3s ease-in-out;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .up{
+            /* border: 1px solid black; */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 114%;
+
+            
+        }
+        .flashcards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+        }
+        .flashcard {
+           
+            width: 80%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: lightgray;
+            color: white;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.5s ease-in-out;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .flashcard:hover {
+            transform: scale(1.05);
+        }
+        .flashcard .delete {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .controls {
+            margin: 20px;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: 0.4s;
+        }
+        .slider:before {
+            margin:2px;
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+       
+        .b{
+            border-radius: 90px;
+            background-color: rgb(218, 185, 123);
+            padding: 7px;
+            border:none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flashcard App!</h1>
+        <div class="up">
+            <div style="margin-right: 10px;">
+                <label>Front: </label>
+                <input type="text" style="height: 20px;" id="front" />
+</div>
+<div style="margin-right: 15px;">
+    <label>Back: </label>
+    <input type="text "style="height: 20px;" id="back" />
+</div>
+ 
+<div style="margin-right: 15px;">
+    <button onclick="addFlashcard()" class="b" >Add a New Card</button>
+</div> 
+<div style="margin-right: 15px;">
+    <button onclick="shuffleCards()" style="background-color: rgb(165, 206, 239); border-radius:90px;padding: 7px; border:none;">Shuffle</button>
+   </div>
+   <div style="margin-right: 15px;">
+    <button onclick="deleteFlashcard() "style="background-color: rgb(239, 165, 201);border-radius:90px;padding: 7px;border:none;">deleteFlashcard</button>
+</div> 
+         <div class="a">
+            <label class="toggle-switch" style="height: 25px; width: 45px; display: flex; align-items: center; justify-content:center;">
+                <input type="checkbox" onclick="toggleDarkMode()">
+                <span class="slider"></span>
+            </label>
+         </div>     
+        
+               
+                </div>
+        </div> 
+       
+     
+          
+
+            
+            
+        </div>
+        <div class="flashcards" id="flashcards"></div>
+    </div>
+    <script>
+        let flashcards = JSON.parse(localStorage.getItem('flashcards')) || [];
+
+        function saveFlashcards() {
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
+        }
+
+        function addFlashcard() {
+            let front = document.getElementById("front").value;
+            let back = document.getElementById("back").value;
+            if (front && back) {
+                flashcards.push({ front, back, flipped: false });
+                saveFlashcards();
+                renderFlashcards();
+            }
+        }
+
+        function renderFlashcards() {
+            let flashcardContainer = document.getElementById("flashcards");
+            flashcardContainer.innerHTML = "";
+            flashcards.forEach((card, index) => {
+                let flashcard = document.createElement("div");
+                flashcard.className = "flashcard";
+                flashcard.style.backgroundColor = getRandomColor();
+                flashcard.innerHTML = `<span class='delete' onclick='deleteFlashcard(${index})'>&times;</span> ${card.flipped ? card.back : card.front}`;
+                flashcard.onclick = () => {
+                    card.flipped = !card.flipped;
+                    renderFlashcards();
+                };
+                flashcardContainer.appendChild(flashcard);
+            });
+        }
+
+        function deleteFlashcard(index) {
+            flashcards.splice(index, 1);
+            saveFlashcards();
+            renderFlashcards();
+        }
+
+        function shuffleCards() {
+            flashcards.sort(() => Math.random() - 0.5);
+            renderFlashcards();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function getRandomColor() {
+            let colors = ["#6A5ACD", "#DC143C", "#1E90FF", "#FFD700"];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // function exportFlashcards() {
+        //     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(flashcards));
+        //     let downloadAnchorNode = document.createElement('a');
+        //     downloadAnchorNode.setAttribute("href", dataStr);
+        //     downloadAnchorNode.setAttribute("download", "flashcards.json");
+        //     document.body.appendChild(downloadAnchorNode);
+        //     downloadAnchorNode.click();
+        //     downloadAnchorNode.remove();
+        // }
+
+        // function importFlashcards(event) {
+        //     let file = event.target.files[0];
+        //     let reader = new FileReader();
+        //     reader.onload = function(e) {
+        //         flashcards = JSON.parse(e.target.result);
+        //         saveFlashcards();
+        //         renderFlashcards();
+        //     };
+        //     reader.readAsText(file);
+        // }
+
+        renderFlashcards();
+    </script>
+</body>
+</html>
