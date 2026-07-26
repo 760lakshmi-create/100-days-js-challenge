@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Analog Clock</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inclusive+Sans&display=swap');
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .clock-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: black;
+            border-radius: 50%;
+            box-shadow: 0 0 20px purple;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            width: 2px;
+            height: 50px;
+            background-color: white;
+            transform-origin: bottom;
+        }
+        .hour {
+            height: 40px;
+        }
+        .minute {
+            height: 60px;
+        }
+        .second {
+            height: 70px;
+            background-color: red;
+        }
+        .time {
+            margin-top: 20px;
+            font-size: 2em;
+            font-family: 'Bebas Neue', cursive;
+        }
+        .date {
+            font-size: 1em;
+            color: lightgray;
+            font-family: 'Inclusive Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="hand hour" id="hour"></div>
+        <div class="hand minute" id="minute"></div>
+        <div class="hand second" id="second"></div>
+    </div>
+    <div class="time" id="time"></div>
+    <div class="date" id="date"></div>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            const hourHand = document.getElementById('hour');
+            const minuteHand = document.getElementById('minute');
+            const secondHand = document.getElementById('second');
+            const timeDisplay = document.getElementById('time');
+            const dateDisplay = document.getElementById('date');
+
+            const hourDeg = (hours % 12) * 30 + minutes * 0.5;
+            const minuteDeg = minutes * 6 + seconds * 0.1;
+            const secondDeg = seconds * 6;
+
+            hourHand.style.transform = `rotate(${hourDeg}deg)`;
+            minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+            secondHand.style.transform = `rotate(${secondDeg}deg)`;
+
+            timeDisplay.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            dateDisplay.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
