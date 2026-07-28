@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Managing App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #1e1e2f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #f4f4f4;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+        }
+        input, select, button {
+            width: 95%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: none;
+            display: block;
+        }
+        input, select {
+            background: #e0e0e0;
+            color: #333;
+        }
+        button {
+            background: #22a6b3;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+        }
+        button:hover {
+            background: #1f8a99;
+        }
+        .task {
+            background: #e0e0e0;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            color: #333;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .delete-btn, .edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .delete-btn {
+            color: red;
+        }
+        .edit-btn {
+            color: yellow;
+        }
+        .clear-btn {
+            background: #34495e;
+            width: 100%;
+        }
+        .clear-btn:hover {
+            background: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Task Managing App</h2>
+        <input type="text" id="taskName" placeholder="New Task">
+        <input type="date" id="taskDeadline">
+        <input type="text" id="taskAssignee" placeholder="Assign to">
+        <select id="taskDependency" style="width:100%">
+            <option value="">No Dependency</option>
+        </select>
+        <button onclick="addTask()" style="width:100%">ADD TASK ▶</button>
+        <h3>Tasks</h3>
+        <div id="taskList"></div>
+        <button class="clear-btn" onclick="clearTasks()">CLEAR TASK</button>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", loadTasks);
+
+        function addTask() {
+            const name = document.getElementById("taskName").value;
+            const deadline = document.getElementById("taskDeadline").value;
+            const assignee = document.getElementById("taskAssignee").value;
+            const dependency = document.getElementById("taskDependency").value;
+
+            if (!name) {
+                alert("Task name is required!");
+                return;
+            }
+
+            const task = { name, deadline, assignee, dependency };
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            loadTasks();
+        }
+
+        function loadTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            document.getElementById("taskDependency").innerHTML = '<option value="">No Dependency</option>';
+            tasks.forEach((task, index) => {
+                const taskDiv = document.createElement("div");
+                taskDiv.classList.add("task");
+                taskDiv.innerHTML = `<strong>${task.name}</strong> (Deadline: ${task.deadline || "N/A"}, Assignee: ${task.assignee || "N/A"})<br>
+                                     Dependency: ${task.dependency || "None"}
+                                     <div class='task-actions'>
+                                         <button class='edit-btn' onclick='editTask(${index})'>✏</button>
+                                         <button class='delete-btn' onclick='deleteTask(${index})'>🗑</button>
+                                     </div>`;
+                taskList.appendChild(taskDiv);
+                document.getElementById("taskDependency").innerHTML += `<option value="${task.name}">${task.name}</option>`;
+            });
+        }
+
+        function editTask(index) {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+            const task = tasks[index];
+            document.getElementById("taskName").value = task.name;
+            document.getElementById("taskDeadline").value = task.deadline;
+            document.getElementById("taskAssignee").value = task.assignee;
+            document.getElementById("taskDependency").value = task.dependency;
+            deleteTask(index);
+        }
+
+        function deleteTask(index) {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+            tasks.splice(index, 1);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            loadTasks();
+        }
+
+        function clearTasks() {
+            localStorage.removeItem("tasks");
+            loadTasks();
+        }
+    </script>
+</body>
+</html>
