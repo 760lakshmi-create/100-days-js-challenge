@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>QR Code Generator</h1>
+    <p>Enter a platform name or URL to generate a QR code.</p>
+    <div class="input-group">
+      <input type="text" id="inputText" placeholder="Enter the URL" />
+      <button id="generateBtn">Generate</button>
+    </div>
+    <div id="logoContainer" class="logo-container hidden">
+      <img id="platformLogo" alt="" />
+    </div>
+    <div id="qrcode" class="qrcode"></div>
+    <a id="downloadBtn" class="hidden" download="qrcode.png">Download QR Code</a>
+  </div>
+  <footer>
+    <!-- <p>Created with 💖 by Sohinee</p> -->
+  </footer>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

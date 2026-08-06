@@ -1,0 +1,109 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background:#f8d7da;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  .container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+  }
+  
+  h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #4a4a4a;
+  }
+  
+  p {
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    color: #666;
+  }
+  
+  .input-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  #inputText {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px 0 0 8px;
+    outline: none;
+    font-size: 1em;
+  }
+  
+  #generateBtn {
+    background-color: #6c63ff; /* Original button color */
+    transition: background-color 0.3s ease; /* Added transition for smooth color change */
+
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  #generateBtn:hover {
+    border: 1px solid #5b52e6;
+    color: #333;
+    background-color: #ddd; /* Ensure hover color is distinct */
+
+  }
+  
+  .qrcode {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  #downloadBtn {
+    text-decoration: none;
+    background:  #0cd5a0;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 1em;
+  }
+  
+  #downloadBtn:hover {
+    background:white;
+    color: #333;
+    border: 1px solid  #0cd5a0;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+    color: white;
+  }
+
+  .logo-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .logo-container img {
+    width: 50px;
+    height: auto;
+  }
+  
