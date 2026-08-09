@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #6c5ce7;
+        }
+
+        .balance {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .balance div {
+            text-align: center;
+        }
+
+        .balance p {
+            margin: 0;
+            color: #888;
+        }
+
+        .balance span {
+            font-size: 1.5em;
+            color: #6c5ce7;
+        }
+
+        .add-transaction {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .add-transaction input {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .add-transaction button {
+            padding: 10px;
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-transaction button:hover {
+            background-color: #5a4ecf;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f1f1f1;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <div class="balance">
+            <div>
+                <p>Income</p>
+                <span id="income">$1000.00</span>
+            </div>
+            <div>
+                <p>Expenses</p>
+                <span id="expenses">$650.00</span>
+            </div>
+            <div>
+                <p>Your Balance</p>
+                <span id="balance">$350.00</span>
+            </div>
+        </div>
+
+        <div class="add-transaction">
+            <input type="text" id="description" placeholder="Description" />
+            <input type="number" id="amount" placeholder="Amount" />
+            <button onclick="addTransaction()">Add Transaction</button>
+        </div>
+
+        <h3>Transaction History</h3>
+        <table id="transaction-history">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Transaction rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let income = 1000;
+        let expenses = 650;
+        let balance = income - expenses;
+
+        document.getElementById('income').innerText = `$${income}.00`;
+        document.getElementById('expenses').innerText = `$${expenses}.00`;
+        document.getElementById('balance').innerText = `$${balance}.00`;
+
+        function addTransaction() {
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            if (description === "" || isNaN(amount) || amount === 0) {
+                alert("Please enter a valid description and amount.");
+                return;
+            }
+
+            const date = new Date().toLocaleDateString();
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td>${date}</td>
+                <td>${description}</td>
+                <td>$${amount}</td>
+                <td><button class="delete-btn" onclick="deleteTransaction(this, ${amount})">X</button></td>
+            `;
+
+            document.getElementById('transaction-history').querySelector('tbody').appendChild(newRow);
+
+            // Update expenses and balance
+            expenses += amount;
+            balance -= amount;
+
+            document.getElementById('expenses').innerText = `$${expenses}.00`;
+            document.getElementById('balance').innerText = `$${balance}.00`;
+
+            // Clear input fields
+            document.getElementById('description').value = "";
+            document.getElementById('amount').value = "";
+        }
+
+        function deleteTransaction(button, amount) {
+            button.parentElement.parentElement.remove(); // Remove transaction row
+            expenses -= amount;
+            balance += amount;
+
+            document.getElementById('expenses').innerText = `$${expenses}.00`;
+            document.getElementById('balance').innerText = `$${balance}.00`;
+        }
+    </script>
+</body>
+</html>
