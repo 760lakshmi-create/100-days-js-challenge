@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 550px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 60px;
+            padding: 5px;
+            margin: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #ffffff;
+        }
+
+        td:focus {
+            outline: 2px solid #007bff;
+        }
+
+        .reset-btn {
+            background-color: red;
+        }
+
+        .reset-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Dynamic Table Generator</h2>
+        <label>Rows: </label>
+        <input type="number" id="rows" value="2" min="1">
+        <label>Columns: </label>
+        <input type="number" id="cols" value="3" min="1">
+        <button onclick="generateTable()">Generate</button>
+        <button onclick="downloadPDF()">Download PDF</button>
+        <button class="reset-btn" onclick="resetTable()">Reset</button>
+
+        <table id="table">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        function generateTable() {
+            let rows = document.getElementById('rows').value;
+            let cols = document.getElementById('cols').value;
+            let tableHead = document.getElementById('table').querySelector("thead");
+            let tableBody = document.getElementById('table').querySelector("tbody");
+
+            // Clear previous table
+            tableHead.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            // Generate table header
+            let headerRow = "<tr>";
+            for (let c = 0; c < cols; c++) {
+                headerRow += `<th contenteditable="true">Column ${c + 1}</th>`;
+            }
+            headerRow += "</tr>";
+            tableHead.innerHTML = headerRow;
+
+            // Generate table rows with editable cells
+            for (let r = 0; r < rows; r++) {
+                let row = "<tr>";
+                for (let c = 0; c < cols; c++) {
+                    row += `<td contenteditable="true"></td>`;
+                }
+                row += "</tr>";
+                tableBody.innerHTML += row;
+            }
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF();
+
+            doc.text("Dynamic Table", 10, 10);
+            
+            let table = document.getElementById("table");
+            let rows = table.rows;
+            let data = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = [];
+                for (let j = 0; j < rows[i].cells.length; j++) {
+                    row.push(rows[i].cells[j].innerText);
+                }
+                data.push(row);
+            }
+
+            doc.autoTable({ head: [data[0]], body: data.slice(1) });
+            doc.save("table.pdf");
+        }
+
+        function resetTable() {
+            document.getElementById('table').querySelector("thead").innerHTML = "";
+            document.getElementById('table').querySelector("tbody").innerHTML = "";
+        }
+    </script>
+
+</body>
+</html>
