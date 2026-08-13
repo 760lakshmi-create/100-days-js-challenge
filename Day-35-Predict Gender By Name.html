@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Gender by Name</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background:  #5ac9cd;
+            transition: background 0.6s ease-in-out;
+        }
+     
+        
+        .container {
+            width: 350px;
+            padding: 25px;
+            text-align: center;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(12px);
+            transition: 0.5s ease;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: rgb(15, 15, 15);
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            width: 100%;
+            background: #ebe3e5;
+            color: rgb(2, 0, 0);
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: #fcfcfd;
+            color: #000;
+            border: 1px solid #000;
+        }   
+
+        .result-card {
+            display: none;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .emoji {
+            font-size: 70px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .male {
+            background: #0d47a1;
+            box-shadow: 0px 5px 15px rgba(0, 0, 255, 0.3);
+        }
+
+        .female {
+            background: #ff4081;
+            box-shadow: 0px 5px 15px rgba(255, 0, 150, 0.3);
+        }
+
+        .error {
+            color: yellow;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Predict Gender by Name</h2>
+        <input type="text" id="nameInput" placeholder="Enter a name...">
+        <button onclick="predictGender()">Predict</button>
+        <p id="error" class="error"></p>
+        <div id="result" class="result-card">
+            <span class="emoji" id="genderEmoji"></span>
+            <span id="genderText"></span>
+        </div>
+    </div>
+
+    <script>
+        function predictGender() {
+            const name = document.getElementById("nameInput").value.trim();
+            const resultDiv = document.getElementById("result");
+            const genderText = document.getElementById("genderText");
+            const genderEmoji = document.getElementById("genderEmoji");
+            const errorDiv = document.getElementById("error");
+            const body = document.body;
+
+            if (name === "") {
+                errorDiv.textContent = "⚠️ Please enter a valid name!";
+                resultDiv.style.display = "none";
+                return;
+            }
+
+            errorDiv.textContent = "";
+            
+            fetch(`https://api.genderize.io?name=${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.gender) {
+                        resultDiv.style.display = "block";
+                        genderText.textContent = `${name} is likely ${data.gender.toUpperCase()} (${Math.round(data.probability * 100)}%)`;
+
+                        if (data.gender === "male") {
+                            resultDiv.className = "result-card male";
+                            genderEmoji.textContent = "👦"; // Boy Emoji
+                            body.style.background = "linear-gradient(to right, #1e3c72, #2a5298)"; // Dark Blue Theme
+                        } else {
+                            resultDiv.className = "result-card female";
+                            genderEmoji.textContent = "👧"; // Girl Emoji
+                            body.style.background = "linear-gradient(to right, #ff9a9e, #fecfef)"; // Light Pink Theme
+                        }
+                    } else {
+                        resultDiv.style.display = "block";
+                        resultDiv.className = "result-card";
+                        genderText.textContent = "❌ Gender not found!";
+                        genderEmoji.textContent = "❓"; // Unknown emoji
+                        body.style.background = "linear-gradient(to right, #6a11cb, #2575fc)"; // Reset background
+                    }
+                })
+                .catch(() => {
+                    errorDiv.textContent = "⚠️ Error fetching data. Try again!";
+                });
+        }
+    </script>
+
+</body>
+</html>
