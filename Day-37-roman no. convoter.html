@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roman Numeral Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('https://source.unsplash.com/1600x900/?rome,history') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 400px;
+            color: white;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            text-align: center;
+        }
+
+        button {
+            background: #a855f7;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: #9333ea;
+        }
+
+        .output {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Roman Numeral Converter</h2>
+        <p>Convert any number into a <strong>Roman numeral</strong>.</p>
+
+        <input type="number" id="numberInput" placeholder="Enter a number (1 - 3999)">
+        <button onclick="convertToRoman()">Convert</button>
+
+        <p id="error" class="error"></p>
+
+        <div class="output" id="result"></div>
+    </div>
+
+    <script>
+        function convertToRoman() {
+            let num = parseInt(document.getElementById("numberInput").value);
+            let errorDiv = document.getElementById("error");
+            let resultDiv = document.getElementById("result");
+
+            if (isNaN(num) || num < 1 || num > 3999) {
+                errorDiv.textContent = "⚠️ Please enter a valid number between 1 and 3999!";
+                resultDiv.innerHTML = "";
+                return;
+            }
+
+            errorDiv.textContent = "";
+
+            let romanMap = [
+                { value: 1000, symbol: "M" },
+                { value: 900, symbol: "CM" },
+                { value: 500, symbol: "D" },
+                { value: 400, symbol: "CD" },
+                { value: 100, symbol: "C" },
+                { value: 90, symbol: "XC" },
+                { value: 50, symbol: "L" },
+                { value: 40, symbol: "XL" },
+                { value: 10, symbol: "X" },
+                { value: 9, symbol: "IX" },
+                { value: 5, symbol: "V" },
+                { value: 4, symbol: "IV" },
+                { value: 1, symbol: "I" }
+            ];
+
+            let romanNumeral = "";
+            for (let i = 0; i < romanMap.length; i++) {
+                while (num >= romanMap[i].value) {
+                    romanNumeral += romanMap[i].symbol;
+                    num -= romanMap[i].value;
+                }
+            }
+
+            resultDiv.innerHTML = romanNumeral;
+        }
+    </script>
+
+</body>
+</html>
