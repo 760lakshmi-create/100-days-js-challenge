@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #1A3D3F;
+        }
+
+        .container {
+            background: #2C4B4F;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .output {
+            display: none;
+        }
+
+        .box {
+            background: #1ABC9C;
+            padding: 15px;
+            margin: 10px 0;
+            color: white;
+            font-size: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .green {
+            background: #27AE60;
+        }
+
+        .blue {
+            background: #2980B9;
+        }
+
+        .orange {
+            background: #E67E22;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Weight Converter</h2>
+        <input type="number" id="kgInput" placeholder="Enter Kilograms..." oninput="convertWeight()">
+
+        <div class="output">
+            <div class="box green">Grams: <span id="grams"></span></div>
+            <div class="box blue">Pounds: <span id="pounds"></span></div>
+            <div class="box orange">Ounces: <span id="ounces"></span></div>
+        </div>
+    </div>
+
+    <script>
+        function convertWeight() {
+            let kg = document.getElementById("kgInput").value;
+            let output = document.querySelector(".output");
+
+            if (kg !== "") {
+                output.style.display = "block";
+                document.getElementById("grams").textContent = (kg * 1000).toFixed(2);
+                document.getElementById("pounds").textContent = (kg * 2.20462).toFixed(2);
+                document.getElementById("ounces").textContent = (kg * 35.274).toFixed(2);
+            } else {
+                output.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
