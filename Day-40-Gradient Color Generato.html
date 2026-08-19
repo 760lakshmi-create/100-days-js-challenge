@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Color Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(c#f3e6ec, #960a50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+
+            background:linear-gradient(, #d6ced3);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 700px;
+        }
+
+        .Head {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+           
+        }
+
+        h2 {
+            color: #444;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 124%
+        }
+
+        button {
+            background-color: #740257;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #7d4b68;
+        }
+
+        .output {
+            margin-top: 20px;
+        }
+
+        #gradient-box {
+            width: 100%;
+            height: 150px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        #css-code {
+            margin-top: 10px;
+            background: #eee;
+            padding: 10px;
+            font-family: monospace;
+            border-radius: 5px;
+            word-break: break-word;
+        }
+
+        #copy {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Gradient Color Generator</h2>
+        <div class="Head">
+            <div class="controls"style="margin-right: 60px;">
+                <label>Color 1:</label>
+                <input type="color" id="color1" value="#ff6b81" style="padding: 0px;">
+
+                <label>Color 2:</label>
+                <input type="color" id="color2" value="#6a89cc"style="padding: 0px;">
+
+                <label>Select Direction:</label>
+                <select id="direction">
+                    <option value="to right">Left to Right</option>
+                    <option value="to left">Right to Left</option>
+                    <option value="to bottom">Top to Bottom</option>
+                    <option value="to top">Bottom to Top</option>
+                    <option value="45deg">Diagonal</option>
+                </select>
+
+                <button id="generate">Generate Gradient</button>
+            </div>
+
+            <div class="output">
+                <div id="gradient-box"></div>
+                <p id="css-code">background: linear-gradient(to right, #ff6b81, #6a89cc);</p>
+                <button id="copy" style="width: 189px;">Copy Code</button>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <script>
+        document.getElementById("generate").addEventListener("click", function () {
+            let color1 = document.getElementById("color1").value;
+            let color2 = document.getElementById("color2").value;
+            let direction = document.getElementById("direction").value;
+
+            let gradientCSS = `background: linear-gradient(${direction}, ${color1}, ${color2});`;
+
+            document.getElementById("gradient-box").style.background = `linear-gradient(${direction}, ${color1}, ${color2})`;
+            document.getElementById("css-code").textContent = gradientCSS;
+        });
+
+        document.getElementById("copy").addEventListener("click", function () {
+            let cssCode = document.getElementById("css-code").textContent;
+            navigator.clipboard.writeText(cssCode).then(() => {
+                alert("Copied to clipboard!");
+            });
+        });
+    </script>
+
+</body>
+
+</html>
