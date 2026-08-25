@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspect Ratio Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #3a7bd5, #3a6073);
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        h2 {
+            background: #3a7bd5;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .ratio-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .ratio-box input {
+            width: 50px;
+            padding: 8px;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .input-box {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .input-box label {
+            font-weight: bold;
+        }
+        .input-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #3a7bd5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #2b5ea5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Aspect Ratio Calculator</h2>
+        
+        <div class="ratio-box">
+            <input type="number" id="ratioWidth" value="16">
+            <span>:</span>
+            <input type="number" id="ratioHeight" value="9">
+        </div>
+
+        <div class="input-box">
+            <label>Width:</label>
+            <input type="number" id="width" placeholder="Enter width">
+        </div>
+
+        <div class="input-box">
+            <label>Height:</label>
+            <input type="number" id="height" placeholder="Enter height">
+        </div>
+
+        <button onclick="calculateHeight()">Calculate Height</button>
+        <button onclick="calculateWidth()">Calculate Width</button>
+    </div>
+
+    <script>
+        function calculateHeight() {
+            let ratioWidth = parseFloat(document.getElementById("ratioWidth").value);
+            let ratioHeight = parseFloat(document.getElementById("ratioHeight").value);
+            let width = parseFloat(document.getElementById("width").value);
+
+            if (!width || !ratioWidth || !ratioHeight) {
+                alert("Please enter valid values!");
+                return;
+            }
+
+            let height = (width / ratioWidth) * ratioHeight;
+            document.getElementById("height").value = height.toFixed(2);
+        }
+
+        function calculateWidth() {
+            let ratioWidth = parseFloat(document.getElementById("ratioWidth").value);
+            let ratioHeight = parseFloat(document.getElementById("ratioHeight").value);
+            let height = parseFloat(document.getElementById("height").value);
+
+            if (!height || !ratioWidth || !ratioHeight) {
+                alert("Please enter valid values!");
+                return;
+            }
+
+            let width = (height / ratioHeight) * ratioWidth;
+            document.getElementById("width").value = width.toFixed(2);
+        }
+    </script>
+
+</body>
+</html>
