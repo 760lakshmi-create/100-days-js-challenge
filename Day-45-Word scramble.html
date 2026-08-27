@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+            position: relative;
+        }
+        h2 {
+            color: #243b55;
+            margin-bottom: 15px;
+        }
+        .word-box {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            background: #243b55;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .hint {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        .timer {
+            font-size: 14px;
+            color: red;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            width: 48%;
+            padding: 10px;
+            background: #243b55;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1b2a41;
+        }
+        .footer-message {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 5px;
+            width: 90%;
+            text-align: center;
+            display: none; /* Initially hidden */
+            
+        }
+        .success {
+            color: green;
+            background: #e6f9e6;
+            border: 1px solid green;
+        }
+        .error {
+            color: red;
+            background: #f9e6e6;
+            border: 1px solid red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Word Scramble Game</h2>
+        <div class="word-box" id="scrambled-word">FTMOROC</div>
+        <div class="hint" id="hint">Hint: A place for coding</div>
+        <div class="timer">Time Left: <span id="time">30</span> sec</div>
+        <input type="text" id="user-input" placeholder="Enter correct word">
+        <button onclick="checkWord()">Check Word</button>
+        <button onclick="refreshWord()">Refresh Word</button>
+        <div id="footer-message" class="footer-message"></div> <!-- Message box in footer -->
+    </div>
+
+    <script>
+        const words = [
+            { word: "computer", hint: "A machine for computing" },
+            { word: "javascript", hint: "A programming language" },
+            { word: "keyboard", hint: "Used to type on a computer" },
+            { word: "monitor", hint: "A screen to display visuals" },
+            { word: "internet", hint: "A network connecting people worldwide" }
+        ];
+        
+        let currentWord = {};
+        let timeLeft = 30;
+        let timer;
+
+        function shuffleWord(word) {
+            return word.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        function refreshWord() {
+            clearInterval(timer);
+            timeLeft = 30;
+            document.getElementById("time").innerText = timeLeft;
+            timer = setInterval(updateTimer, 1000);
+
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById("scrambled-word").innerText = shuffleWord(currentWord.word);
+            document.getElementById("hint").innerText = `Hint: ${currentWord.hint}`;
+            document.getElementById("user-input").value = "";
+            document.getElementById("footer-message").style.display = "none"; // Hide footer message
+        }
+
+        function checkWord() {
+            let userInput = document.getElementById("user-input").value.toLowerCase();
+            let footerMessage = document.getElementById("footer-message");
+
+            if (userInput === currentWord.word) {
+                footerMessage.innerText = "✅ Correct! Well done 🎉";
+                footerMessage.className = "footer-message success"; 
+                footerMessage.style.display = "block";
+                setTimeout(refreshWord, 1500);
+            } else {
+                footerMessage.innerText = "❌ Wrong! Try Again.";
+                footerMessage.className = "footer-message error"; 
+                footerMessage.style.display = "block";
+            }
+        }
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById("time").innerText = timeLeft;
+            } else {
+                clearInterval(timer);
+                let footerMessage = document.getElementById("footer-message");
+                footerMessage.innerText = "⏳ Time's up! The correct word was: " + currentWord.word;
+                footerMessage.className = "footer-message error"; 
+                footerMessage.style.display = "block";
+                setTimeout(refreshWord, 2000);
+            }
+        }
+
+        refreshWord();
+    </script>
+
+</body>
+</html>
