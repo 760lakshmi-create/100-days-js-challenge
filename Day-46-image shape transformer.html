@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Shape Transformer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #d7b744, #243b55);
+            color: white;
+            text-align: center;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            color: black;
+        }
+        h2 {
+            color: #243b55;
+            margin-bottom: 15px;
+        }
+        .image-container {
+            width: 200px;
+            height: 200px;
+            margin: 10px auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: lightgray;
+            transition: all 0.4s ease;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        select, input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            background: #243b55;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1b2a41;
+        }
+
+        /* Special Shapes */
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .hexagon {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        .parallelogram {
+            clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+        }
+        .star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .heart {
+            clip-path: polygon(50% 80%, 21% 100%, 0% 68%, 16% 38%, 50% 10%, 84% 38%, 100% 68%, 79% 100%);
+        }
+        .pentagon {
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Image Shape Transformer</h2>
+        <div class="image-container" id="image-container">
+            <img id="image-preview" src="https://via.placeholder.com/200" alt="Upload Image">
+        </div>
+        <input type="file" id="imageUpload" accept="image/*">
+        <select id="shapeSelector">
+            <option value="square">Square</option>
+            <option value="circle">Circle</option>
+            <option value="oval">Oval</option>
+            <option value="rounded">Rounded Rectangle</option>
+            <option value="triangle">Triangle</option>
+            <option value="hexagon">Hexagon</option>
+            <option value="parallelogram">Parallelogram</option>
+            <option value="star">Star</option>
+            <option value="heart">Heart</option>
+            <option value="pentagon">Pentagon</option>
+        </select>
+        <button onclick="transformShape()">Transform Shape</button>
+    </div>
+
+    <script>
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function transformShape() {
+            const selectedShape = document.getElementById('shapeSelector').value;
+            const imageContainer = document.getElementById('image-container');
+
+            imageContainer.className = "image-container"; // Reset classes
+
+            if (selectedShape === 'circle') {
+                imageContainer.style.borderRadius = '50%';
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+            } else if (selectedShape === 'square') {
+                imageContainer.style.borderRadius = '0';
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+            } else if (selectedShape === 'oval') {
+                imageContainer.style.borderRadius = '50%';
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '120px';
+            } else if (selectedShape === 'rounded') {
+                imageContainer.style.borderRadius = '20px';
+                imageContainer.style.width = '220px';
+                imageContainer.style.height = '180px';
+            } else if (selectedShape === 'triangle') {
+                imageContainer.classList.add("triangle");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+                imageContainer.style.borderRadius = '0';
+            } else if (selectedShape === 'hexagon') {
+                imageContainer.classList.add("hexagon");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+                imageContainer.style.borderRadius = '0';
+            } else if (selectedShape === 'parallelogram') {
+                imageContainer.classList.add("parallelogram");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '150px';
+                imageContainer.style.borderRadius = '0';
+            } else if (selectedShape === 'star') {
+                imageContainer.classList.add("star");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+                imageContainer.style.borderRadius = '0';
+            } else if (selectedShape === 'heart') {
+                imageContainer.classList.add("heart");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+                imageContainer.style.borderRadius = '0';
+            } else if (selectedShape === 'pentagon') {
+                imageContainer.classList.add("pentagon");
+                imageContainer.style.width = '200px';
+                imageContainer.style.height = '200px';
+                imageContainer.style.borderRadius = '0';
+            }
+        }
+    </script>
+
+</body>
+</html>
