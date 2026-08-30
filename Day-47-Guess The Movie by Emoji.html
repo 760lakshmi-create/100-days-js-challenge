@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess The Movie by Emoji 🎬</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #700445, #616162);
+            color: white;
+            text-align: center;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            color: black;
+        }
+        h2 {
+            color: #243b55;
+            margin-bottom: 15px;
+        }
+        .emoji-display {
+            font-size: 40px;
+            margin: 20px 0;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            background: #69014a;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #eaf2fe;
+            border: 1px solid black;
+            color: black;
+        }
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Guess The Movie by Emoji 🎬</h2>
+        <p class="emoji-display" id="emoji-display"></p>
+        <input type="text" id="user-input" placeholder="Enter movie name...">
+        <button onclick="checkAnswer()">Submit</button>
+        <p class="result" id="result"></p>
+        <button onclick="newGame()">New Movie</button>
+    </div>
+
+    <script>
+        const movies = [
+            { emoji: "🦁👑", name: "The Lion King" },
+            { emoji: "🚢💑🧊", name: "Titanic" },
+            { emoji: "🦇🤵", name: "Batman" },
+            { emoji: "👽📞🏠", name: "E.T." },
+            { emoji: "🧙‍♂️⚡", name: "Harry Potter" },
+            { emoji: "🐠🔍", name: "Finding Nemo" },
+            { emoji: "🦸‍♂️🛡️", name: "Captain America" },
+            { emoji: "🕷️🦸‍♂️", name: "Spider-Man" },
+            { emoji: "👻🔫", name: "Ghostbusters" },
+            { emoji: "🤖🚗", name: "Transformers" },
+            { emoji: "🎈🏠👴", name: "Up" },
+            { emoji: "🐉🏀", name: "Dragon Ball" },
+            { emoji: "💀⚔️🏝️", name: "Pirates of the Caribbean" }
+        ];
+
+        let currentMovie = {};
+
+        function newGame() {
+            currentMovie = movies[Math.floor(Math.random() * movies.length)];
+            document.getElementById('emoji-display').textContent = currentMovie.emoji;
+            document.getElementById('user-input').value = "";
+            document.getElementById('result').textContent = "";
+        }
+
+        function checkAnswer() {
+            let userAnswer = document.getElementById('user-input').value.trim().toLowerCase();
+            if (userAnswer === currentMovie.name.toLowerCase()) {
+                document.getElementById('result').textContent = "🎉 Correct! You guessed it!";
+                document.getElementById('result').style.color = "green";
+            } else {
+                document.getElementById('result').textContent = `❌ Wrong! The correct answer was: ${currentMovie.name}`;
+                document.getElementById('result').style.color = "red";
+            }
+        }
+
+        newGame();
+    </script>
+
+</body>
+</html>
