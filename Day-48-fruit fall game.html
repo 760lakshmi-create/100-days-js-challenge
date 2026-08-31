@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Fall Game 🍎🍌🍊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(to bottom, #87CEFA, #FFD700);
+            text-align: center;
+        }
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            background: #fff;
+            margin: 50px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .basket {
+            width: 100px;
+            height: 60px;
+            position: absolute;
+            bottom: 10px;
+            left: 150px;
+            background: url('https://i.imgur.com/QJrBRTI.png') no-repeat center/cover;
+        }
+        .fruit {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            top: -60px;
+            font-size: 50px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .score {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .game-over {
+            font-size: 24px;
+            font-weight: bold;
+            color: red;
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🍎 Fruit Fall Game 🍌</h1>
+    <p class="score">Score: <span id="score">0</span></p>
+    <p class="game-over">Game Over! Refresh to Play Again</p>
+
+    <div class="game-container">
+        <div class="basket" id="basket"></div>
+    </div>
+
+    <script>
+        const basket = document.getElementById('basket');
+        const gameContainer = document.querySelector('.game-container');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverText = document.querySelector('.game-over');
+        
+        let score = 0;
+        let isGameOver = false;
+
+        // Move basket with left/right arrow keys
+        document.addEventListener('keydown', (event) => {
+            if (isGameOver) return;
+
+            let basketPos = basket.offsetLeft;
+            if (event.key === "ArrowLeft" && basketPos > 10) {
+                basket.style.left = `${basketPos - 30}px`;
+            }
+            if (event.key === "ArrowRight" && basketPos < 290) {
+                basket.style.left = `${basketPos + 30}px`;
+            }
+        });
+
+        // Generate falling fruits
+        function createFruit() {
+            if (isGameOver) return;
+
+            const fruits = ["🍎", "🍌", "🍊", "🍉", "🍇"];
+            const fruit = document.createElement('div');
+            fruit.classList.add('fruit');
+            fruit.innerHTML = fruits[Math.floor(Math.random() * fruits.length)];
+            fruit.style.left = `${Math.random() * 340}px`;
+            gameContainer.appendChild(fruit);
+
+            // Make fruit clickable
+            fruit.addEventListener("click", () => {
+                score++;
+                scoreDisplay.textContent = score;
+                fruit.remove();
+            });
+
+            let fallInterval = setInterval(() => {
+                if (isGameOver) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                fruit.style.top = `${fruit.offsetTop + 6}px`;
+
+                // Check if fruit reaches basket
+                if (fruit.offsetTop + 60 >= 440 && fruit.offsetLeft >= basket.offsetLeft && fruit.offsetLeft <= basket.offsetLeft + 100) {
+                    score++;
+                    scoreDisplay.textContent = score;
+                    fruit.remove();
+                    clearInterval(fallInterval);
+                }
+
+                // Check if fruit falls out
+                if (fruit.offsetTop > 500) {
+                    clearInterval(fallInterval);
+                    fruit.remove();
+                    endGame();
+                }
+            }, 40);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            gameOverText.style.display = "block";
+        }
+
+        // Start the game with falling fruits
+        setInterval(createFruit, 1300);
+    </script>
+
+</body>
+</html>
