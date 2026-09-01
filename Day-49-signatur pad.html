@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Signature Pad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e1e1e, #3a3a3a);
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 550px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #f9f9f9;
+            width: 100%;
+            height: 250px;
+            cursor: crosshair;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .controls div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .color-palette {
+            display: flex;
+            gap: 5px;
+        }
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ccc;
+        }
+        button, input {
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        button {
+            color: white;
+            transition: 0.3s;
+        }
+        .clear { background: #d9534f; }
+        .undo { background: #f0ad4e; }
+        .redo { background: #5bc0de; }
+        .save { background: #5cb85c; }
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🖊️ Professional Signature Pad</h2>
+        <canvas id="signaturePad"></canvas>
+
+        <div class="controls">
+            <div>
+                <label>Pen Size:</label>
+                <input type="range" id="penSize" min="1" max="10" value="2">
+            </div>
+            <div>
+                <label>Color:</label>
+                <input type="color" id="penColor" value="#000000">
+            </div>
+        </div>
+
+        <div class="color-palette" id="colorPalette">
+            <div class="color-box" style="background: black;" onclick="setColor('#000000')"></div>
+            <div class="color-box" style="background: red;" onclick="setColor('#ff0000')"></div>
+            <div class="color-box" style="background: blue;" onclick="setColor('#0000ff')"></div>
+            <div class="color-box" style="background: green;" onclick="setColor('#008000')"></div>
+            <div class="color-box" style="background: purple;" onclick="setColor('#800080')"></div>
+        </div>
+
+        <div class="controls">
+            <button class="undo" onclick="undo()">Undo</button>
+            <button class="redo" onclick="redo()">Redo</button>
+            <button class="clear" onclick="clearCanvas()">Clear</button>
+            <button class="save" onclick="saveSignature('png')">Save as PNG</button>
+            <button class="save" onclick="saveSignature('jpg')">Save as JPG</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let penSize = document.getElementById('penSize').value;
+        let penColor = document.getElementById('penColor').value;
+        let paths = [];
+        let undonePaths = [];
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = 250;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        document.getElementById('penSize').addEventListener('input', function() {
+            penSize = this.value;
+        });
+
+        document.getElementById('penColor').addEventListener('input', function() {
+            penColor = this.value;
+        });
+
+        function setColor(color) {
+            penColor = color;
+            document.getElementById('penColor').value = color;
+        }
+
+        function startDrawing(event) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+            paths.push({ color: penColor, size: penSize, path: [{ x: event.offsetX, y: event.offsetY }] });
+        }
+
+        function draw(event) {
+            if (!drawing) return;
+            let currentPath = paths[paths.length - 1].path;
+            ctx.lineWidth = penSize;
+            ctx.strokeStyle = penColor;
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+            currentPath.push({ x: event.offsetX, y: event.offsetY });
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.closePath();
+            undonePaths = [];
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            paths = [];
+            undonePaths = [];
+        }
+
+        function undo() {
+            if (paths.length > 0) {
+                undonePaths.push(paths.pop());
+                redrawCanvas();
+            }
+        }
+
+        function redo() {
+            if (undonePaths.length > 0) {
+                paths.push(undonePaths.pop());
+                redrawCanvas();
+            }
+        }
+
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            paths.forEach(stroke => {
+                ctx.beginPath();
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size;
+                stroke.path.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                ctx.stroke();
+                ctx.closePath();
+            });
+        }
+        
+        function saveSignature(format) {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL(`image/${format}`);
+            link.download = `signature.${format}`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
