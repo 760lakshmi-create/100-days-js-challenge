@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Formatter Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #2a2a2a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #4e6ef2, #7b5cf6);
+    }
+
+    .container {
+      background: #1f1f1f;
+      border-radius: 12px;
+      padding: 30px 50px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    button, input[type="number"], input[type="color"] {
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    button {
+      background: #ff69b4;
+      color: white;
+      width: 80px;
+    }
+
+    button:hover {
+      background: #ff3385;
+    }
+
+    input[type="number"], input[type="color"] {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    input[type="number"]:focus, input[type="color"]:focus {
+      border-color: #ff69b4;
+    }
+
+    textarea {
+      width: 100%;
+      height: 250px;
+      background: #333;
+      color: white;
+      border-radius: 10px;
+      border: 1px solid #555;
+      padding: 15px;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-top: 20px;
+      resize: none;
+      transition: all 0.3s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #ff69b4;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    .reset-btn {
+      background: #FF4500;
+      color: white;
+      width: 100px;
+      font-size: 14px;
+    }
+
+    .reset-btn:hover {
+      background: #e03300;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Text Formatter Tool</h1>
+    
+    <div class="controls">
+      <button onclick="formatText('bold')">Bold</button>
+      <button onclick="formatText('italic')">Italic</button>
+      <button onclick="formatText('underline')">Underline</button>
+      <input type="number" id="font-size" value="16" onchange="updateFontSize()" placeholder="Size">
+      <input type="color" id="font-color" onchange="updateFontColor()" value="#ffffff">
+    </div>
+
+    <textarea id="text-area" placeholder="Type your text here..."></textarea>
+
+    <div class="button-container">
+      <button class="reset-btn" onclick="resetFormatting()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    // Function to apply selected format to the text area
+    function formatText(command) {
+      const textArea = document.getElementById('text-area');
+      
+      if (command === 'bold') {
+        textArea.style.fontWeight = textArea.style.fontWeight === 'bold' ? 'normal' : 'bold';
+      } else if (command === 'italic') {
+        textArea.style.fontStyle = textArea.style.fontStyle === 'italic' ? 'normal' : 'italic';
+      } else if (command === 'underline') {
+        textArea.style.textDecoration = textArea.style.textDecoration === 'underline' ? 'none' : 'underline';
+      }
+    }
+
+    // Function to update font size
+    function updateFontSize() {
+      const fontSize = document.getElementById('font-size').value;
+      document.getElementById('text-area').style.fontSize = fontSize + 'px';
+    }
+
+    // Function to update font color
+    function updateFontColor() {
+      const fontColor = document.getElementById('font-color').value;
+      document.getElementById('text-area').style.color = fontColor;
+    }
+
+    // Function to reset all formatting
+    function resetFormatting() {
+      const textArea = document.getElementById('text-area');
+      textArea.style.fontWeight = 'normal';
+      textArea.style.fontStyle = 'normal';
+      textArea.style.textDecoration = 'none';
+      textArea.style.fontSize = '16px';
+      textArea.style.color = '#ffffff';
+      document.getElementById('font-size').value = '16';
+      document.getElementById('font-color').value = '#ffffff';
+    }
+  </script>
+
+</body>
+</html>
