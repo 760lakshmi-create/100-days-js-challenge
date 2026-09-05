@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced Blob Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #1c1c1e;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    svg {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      display: block;
+      transition: all 0.3s ease;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+    }
+    input[type="range"], input[type="color"] {
+      margin-top: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #00c6ff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0072ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔥 Advanced Blob Generator</h1>
+    <svg id="blob" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#00c6ff" d="M60,60c40,-30,90,-30,120,0c30,30,30,80,0,110c-30,30,-80,30,-110,0c-30,-30,-30,-80,0,-110Z" />
+    </svg>
+
+    <div class="controls">
+      <label>Complexity
+        <input type="range" id="points" min="3" max="12" value="6"/>
+      </label>
+      <label>Size
+        <input type="range" id="size" min="100" max="250" value="180"/>
+      </label>
+      <label>Color
+        <input type="color" id="color" value="#00c6ff"/>
+      </label>
+    </div>
+
+    <div class="controls">
+      <button onclick="generateBlob()">Generate Blob</button>
+      <button onclick="copyToClipboard()">Copy SVG</button>
+      <button onclick="downloadBlob()">Download SVG</button>
+    </div>
+  </div>
+
+  <script>
+    function generateBlob() {
+      const points = +document.getElementById('points').value;
+      const size = +document.getElementById('size').value;
+      const color = document.getElementById('color').value;
+
+      const radius = size / 2;
+      const center = 150;
+      const step = (Math.PI * 2) / points;
+      let path = '';
+
+      for (let i = 0; i < points; i++) {
+        const angle = i * step;
+        const r = radius + Math.random() * 20 - 10;
+        const x = center + Math.cos(angle) * r;
+        const y = center + Math.sin(angle) * r;
+        path += `${i === 0 ? 'M' : 'L'}${x},${y} `;
+      }
+
+      path += 'Z';
+
+      const blob = document.getElementById('blob').querySelector('path');
+      blob.setAttribute('d', path);
+      blob.setAttribute('fill', color);
+    }
+
+    function copyToClipboard() {
+      const blobSVG = document.getElementById('blob').outerHTML;
+      const textarea = document.createElement('textarea');
+      textarea.value = blobSVG;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+      alert("✅ SVG copied to clipboard!");
+    }
+
+    function downloadBlob() {
+      const svg = document.getElementById('blob');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'blob.svg';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Generate blob initially
+    generateBlob();
+  </script>
+</body>
+</html>
