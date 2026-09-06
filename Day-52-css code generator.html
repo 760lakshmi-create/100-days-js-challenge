@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSS Code Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .background {
+      height: 100vh;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      color: #fff;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input[type="color"],
+    input[type="number"] {
+      margin-top: 0.5rem;
+      padding: 0.4rem;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .preview {
+      background: #fff;
+      color: #000;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 1.5rem 0;
+      transition: all 0.3s ease;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #00ff7f;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: left;
+      overflow-x: auto;
+    }
+
+    button {
+      background: #00ff7f;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+      margin-top: 1rem;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 600px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background">
+    <div class="container">
+      <h1>🎨 CSS Code Generator</h1>
+
+      <div class="controls">
+        <label>
+          Background Color
+          <input type="color" id="bgColor" />
+        </label>
+        <label>
+          Text Color
+          <input type="color" id="textColor" />
+        </label>
+        <label>
+          Font Size (px)
+          <input type="number" id="fontSize" min="10" max="100" value="16" />
+        </label>
+        <label>
+          Padding (px)
+          <input type="number" id="padding" min="0" max="100" value="10" />
+        </label>
+      </div>
+
+      <div class="preview" id="previewBox">Live Preview</div>
+
+      <h2>💻 Generated CSS</h2>
+      <pre id="cssOutput"></pre>
+      <button onclick="copyCSS()">📋 Copy CSS</button>
+    </div>
+  </div>
+
+  <script>
+    const bgColorInput = document.getElementById("bgColor");
+    const textColorInput = document.getElementById("textColor");
+    const fontSizeInput = document.getElementById("fontSize");
+    const paddingInput = document.getElementById("padding");
+    const previewBox = document.getElementById("previewBox");
+    const cssOutput = document.getElementById("cssOutput");
+
+    function updateCSS() {
+      const bgColor = bgColorInput.value;
+      const textColor = textColorInput.value;
+      const fontSize = fontSizeInput.value + "px";
+      const padding = paddingInput.value + "px";
+
+      previewBox.style.backgroundColor = bgColor;
+      previewBox.style.color = textColor;
+      previewBox.style.fontSize = fontSize;
+      previewBox.style.padding = padding;
+
+      const cssCode = `
+.preview {
+  background-color: ${bgColor};
+  color: ${textColor};
+  font-size: ${fontSize};
+  padding: ${padding};
+}
+      `.trim();
+
+      cssOutput.textContent = cssCode;
+    }
+
+    function copyCSS() {
+      navigator.clipboard.writeText(cssOutput.textContent)
+        .then(() => alert("CSS code copied to clipboard!"))
+        .catch(err => alert("Copy failed: " + err));
+    }
+
+    [bgColorInput, textColorInput, fontSizeInput, paddingInput].forEach(input => {
+      input.addEventListener("input", updateCSS);
+    });
+
+    updateCSS(); // Initial load
+  </script>
+</body>
+</html>
