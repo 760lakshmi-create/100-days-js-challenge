@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dynamic Story Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right top, #74ebd5, #9face6);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 650px;
+      color: #fff;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      flex: 1 1 45%;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .input-group input,
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .generate {
+      background-color: #4facfe;
+    }
+
+    .generate:hover {
+      background-color: #00c6ff;
+      transform: scale(1.05);
+    }
+
+    .reset {
+      background-color: #ff6b6b;
+    }
+
+    .reset:hover {
+      background-color: #ff4757;
+      transform: scale(1.05);
+    }
+
+    .story-output {
+      margin-top: 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 1rem;
+      border-radius: 12px;
+      min-height: 60px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease-in-out;
+    }
+
+    @media (max-width: 500px) {
+      .input-group label {
+        flex: 1 1 100%;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌈 Story Generator</h1>
+    <div class="input-group">
+      <label>
+        Name:
+        <input type="text" id="name" placeholder="e.g. Doraemon" />
+      </label>
+      <label>
+        Place:
+        <input type="text" id="place" placeholder="e.g. jungle" />
+      </label>
+      <label>
+        Object:
+        <input type="text" id="object" placeholder="e.g. magic wand" />
+      </label>
+      <label>
+        Action:
+        <input type="text" id="action" placeholder="e.g. threw" />
+      </label>
+      <label style="flex: 1 1 100%;">
+        Story Type:
+        <select id="storyType">
+          <option value="1">Adventure</option>
+          <option value="2">Mystery</option>
+          <option value="3">Comedy</option>
+          <option value="4">Sci-Fi</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="buttons">
+      <button class="generate" onclick="generateStory()">Generate Story</button>
+      <button class="reset" onclick="resetForm()">Reset</button>
+    </div>
+
+    <div class="story-output" id="storyOutput">Your story will appear here...</div>
+  </div>
+
+  <script>
+    function generateStory() {
+      const name = document.getElementById("name").value.trim();
+      const place = document.getElementById("place").value.trim();
+      const object = document.getElementById("object").value.trim();
+      const action = document.getElementById("action").value.trim();
+      const type = document.getElementById("storyType").value;
+      const output = document.getElementById("storyOutput");
+
+      if (!name || !place || !object || !action) {
+        output.textContent = "⚠️ Please fill in all the fields to generate a story!";
+        return;
+      }
+
+      let story = "";
+
+      switch (type) {
+        case "1": // Adventure
+          story = `${name} ventured into the wild ${place}, where they discovered a mysterious ${object}. With courage, ${name} ${action} it and unlocked a secret path!`;
+          break;
+        case "2": // Mystery
+          story = `In the heart of the ${place}, ${name} found an abandoned ${object}. When ${name} ${action} it, a hidden clue to an ancient puzzle was revealed...`;
+          break;
+        case "3": // Comedy
+          story = `${name} went to the ${place} carrying a ${object}. Out of nowhere, ${name} accidentally ${action} it... and everyone laughed for hours! 😂`;
+          break;
+        case "4": // Sci-Fi
+          story = `In the futuristic ${place}, ${name} discovered a glowing ${object}. As soon as ${name} ${action} it, a portal to another galaxy opened! 🚀`;
+          break;
+        default:
+          story = "Something went wrong. Please try again.";
+      }
+
+      output.textContent = story;
+    }
+
+    function resetForm() {
+      document.getElementById("name").value = "";
+      document.getElementById("place").value = "";
+      document.getElementById("object").value = "";
+      document.getElementById("action").value = "";
+      document.getElementById("storyOutput").textContent = "Your story will appear here...";
+      document.getElementById("storyType").selectedIndex = 0;
+    }
+  </script>
+</body>
+</html>
