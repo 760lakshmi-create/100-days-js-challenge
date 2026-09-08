@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Music Player</title>
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #fdf6fd, #e3f2fd, #d0f1ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .player-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 350px;
+      transition: all 0.3s ease-in-out;
+    }
+    .player-container:hover{
+      transform: scale(1.02);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .note {
+      position: absolute;
+      font-size: 24px;
+      animation: float 10s linear infinite;
+      opacity: 0.3;
+      pointer-events: none;
+      color: #a5d7ff;
+    }
+    .cover {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    
+    }
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(0.5) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.2) rotate(360deg);
+      }
+      
+    }
+  </style>
+</head>
+<body>
+  <div class="player-container">
+    <h2>🎶 Interactive Music Player</h2>
+    <img class="cover" src="tenor.gif" alt="Album Cover">
+    <audio controls>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    // Generate floating musical notes
+    for (let i = 0; i < 20; i++) {
+      const note = document.createElement('div');
+      note.classList.add('note');
+      note.innerHTML = '🎵';
+      note.style.left = `${Math.random() * 100}vw`;
+      note.style.animationDuration = `${6 + Math.random() * 5}s`;
+      note.style.fontSize = `${16 + Math.random() * 20}px`;
+      document.body.appendChild(note);
+    }
+  </script>
+</body>
+</html>
