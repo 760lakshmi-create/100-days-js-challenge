@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cool Image Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #0f0f12;
+      color: #fff;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: #1b1b22;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.4);
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #00ffc3;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-group button {
+      background: #00ffc3;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn-group button:hover {
+      background: #00d6a8;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #121212, #1d1d1d);
+      padding: 20px;
+    }
+
+    .image-box {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 255, 195, 0.4);
+    }
+
+    #image {
+      max-width: 100%;
+      max-height: 100%;
+      display: none;
+      transition: filter 0.3s, transform 0.3s;
+    }
+
+    input[type="file"] {
+      background: #2c2c36;
+      padding: 10px;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media(max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        box-shadow: none;
+      }
+
+      .main {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🎨 Image Editor</h2>
+    <input type="file" id="upload" accept="image/*" />
+    
+    <div class="control">
+      <label>Brightness</label>
+      <input type="range" id="brightness" min="0" max="200" value="100" />
+    </div>
+    <div class="control">
+      <label>Contrast</label>
+      <input type="range" id="contrast" min="0" max="200" value="100" />
+    </div>
+    <div class="control">
+      <label>Grayscale</label>
+      <input type="range" id="grayscale" min="0" max="100" value="0" />
+    </div>
+    <div class="control">
+      <label>Sepia</label>
+      <input type="range" id="sepia" min="0" max="100" value="0" />
+    </div>
+    <div class="control">
+      <label>Blur</label>
+      <input type="range" id="blur" min="0" max="10" step="0.1" value="0" />
+    </div>
+
+    <div class="btn-group">
+      <button id="flip">Flip</button>
+      <button id="rotate">Rotate</button>
+      <button id="reset">Reset</button>
+      <button id="download">Download</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="image-box">
+      <img id="image" src="" alt="Image" />
+    </div>
+  </div>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const image = document.getElementById('image');
+    const brightness = document.getElementById('brightness');
+    const contrast = document.getElementById('contrast');
+    const grayscale = document.getElementById('grayscale');
+    const sepia = document.getElementById('sepia');
+    const blur = document.getElementById('blur');
+    const reset = document.getElementById('reset');
+    const flip = document.getElementById('flip');
+    const rotate = document.getElementById('rotate');
+    const download = document.getElementById('download');
+
+    let flipX = 1;
+    let rotation = 0;
+
+    function applyFilters() {
+      image.style.filter = `
+        brightness(${brightness.value}%)
+        contrast(${contrast.value}%)
+        grayscale(${grayscale.value}%)
+        sepia(${sepia.value}%)
+        blur(${blur.value}px)
+      `;
+      image.style.transform = `scaleX(${flipX}) rotate(${rotation}deg)`;
+    }
+
+    [brightness, contrast, grayscale, sepia, blur].forEach(input => {
+      input.addEventListener('input', applyFilters);
+    });
+
+    upload.addEventListener('change', () => {
+      const file = upload.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          image.src = reader.result;
+          image.style.display = 'block';
+          applyFilters();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    reset.addEventListener('click', () => {
+      brightness.value = 100;
+      contrast.value = 100;
+      grayscale.value = 0;
+      sepia.value = 0;
+      blur.value = 0;
+      flipX = 1;
+      rotation = 0;
+      applyFilters();
+    });
+
+    flip.addEventListener('click', () => {
+      flipX *= -1;
+      applyFilters();
+    });
+
+    rotate.addEventListener('click', () => {
+      rotation = (rotation + 90) % 360;
+      applyFilters();
+    });
+
+    download.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+
+      ctx.filter = getComputedStyle(image).filter;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      if (flipX === -1) ctx.scale(-1, 1);
+      ctx.rotate(rotation * Math.PI / 180);
+      ctx.drawImage(image, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+
+      const link = document.createElement('a');
+      link.download = 'edited-image.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>
