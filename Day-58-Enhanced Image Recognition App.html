@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Image Recognition App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e9b0b0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #2e3b4e;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #imagePreview {
+            margin-top: 20px;
+        }
+
+        #uploadedImage {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #filters {
+            margin-top: 20px;
+        }
+
+        #filters button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            background-color: #2e3b4e;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #filters button:hover {
+            background-color: #3b4e66;
+        }
+
+        #result {
+            margin-top: 30px;
+        }
+
+        #result h2 {
+            font-size: 24px;
+            color: #2e3b4e;
+        }
+
+        #prediction {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            #uploadedImage {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced Image Recognition App</h1>
+        <input type="file" id="imageUpload" accept="image/*">
+        
+        <div id="imagePreview">
+            <img id="uploadedImage" src="" alt="Uploaded Image" />
+        </div>
+        
+        <div id="filters">
+            <button onclick="applyFilter('grayscale')">Grayscale</button>
+            <button onclick="applyFilter('sepia')">Sepia</button>
+            <button onclick="applyFilter('invert')">Invert</button>
+            <button onclick="resetFilter()">Reset</button>
+        </div>
+
+        <div id="loading">Loading... Please wait while we process the image...</div>
+        
+        <div id="result">
+            <h2>Prediction Result</h2>
+            <p id="prediction">Please upload an image to see the result.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const predictionText = document.getElementById('prediction');
+        const loadingText = document.getElementById('loading');
+        let model;
+        let imageElement = uploadedImage;
+
+        // Load the MobileNet model
+        async function loadModel() {
+            try {
+                model = await mobilenet.load();
+                console.log('Model Loaded');
+            } catch (error) {
+                console.error("Error loading model", error);
+                alert('Error loading the model. Please try again.');
+            }
+        }
+
+        // Load model on page load
+        loadModel();
+
+        // Handle image upload
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.onload = function() {
+                        classifyImage();
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Classify the uploaded image
+        async function classifyImage() {
+            if (model && uploadedImage.src) {
+                loadingText.style.display = 'block';
+                try {
+                    const predictions = await model.classify(imageElement);
+                    console.log(predictions);
+                    predictionText.innerHTML = `Prediction: ${predictions[0].className} - ${Math.round(predictions[0].probability * 100)}%`;
+                } catch (error) {
+                    console.error("Error classifying image", error);
+                    predictionText.innerHTML = 'Error in classification. Please try again.';
+                } finally {
+                    loadingText.style.display = 'none';
+                }
+            }
+        }
+
+        // Apply filter to the image
+        function applyFilter(filter) {
+            switch (filter) {
+                case 'grayscale':
+                    uploadedImage.style.filter = 'grayscale(100%)';
+                    break;
+                case 'sepia':
+                    uploadedImage.style.filter = 'sepia(100%)';
+                    break;
+                case 'invert':
+                    uploadedImage.style.filter = 'invert(100%)';
+                    break;
+            }
+        }
+
+        // Reset the filter applied to the image
+        function resetFilter() {
+            uploadedImage.style.filter = 'none';
+        }
+    </script>
+</body>
+</html>
