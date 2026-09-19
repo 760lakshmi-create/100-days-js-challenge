@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Chess Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e1e2f, #282842);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #status {
+      margin: 10px;
+      font-size: 1.2rem;
+      color: #ffdd57;
+    }
+
+    #chessboard {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      border: 4px solid #444;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .white {
+      background-color: #f0d9b5;
+    }
+
+    .black {
+      background-color: #b58863;
+    }
+
+    .cell:hover {
+      filter: brightness(1.2);
+    }
+
+    .selected {
+      outline: 3px solid #ffdd57;
+    }
+
+    .highlight {
+      background-color: #9acd32 !important;
+    }
+
+    .white-piece {
+      color: white;
+      text-shadow: 0 0 4px black;
+    }
+
+    .black-piece {
+      color: black;
+      text-shadow: 0 0 4px white;
+    }
+
+    #resetBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #ffdd57;
+      border: none;
+      border-radius: 8px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #resetBtn:hover {
+      background: #f1c40f;
+    }
+
+    @media (max-width: 600px) {
+      #chessboard {
+        grid-template-columns: repeat(8, 40px);
+        grid-template-rows: repeat(8, 40px);
+      }
+
+      .cell {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>♟️ Chess Game</h1>
+  <div id="status">Turn: White</div>
+  <div id="chessboard"></div>
+  <button id="resetBtn">Reset Game</button>
+
+  <script>
+    const board = document.getElementById('chessboard');
+    const statusText = document.getElementById('status');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let selectedCell = null;
+    let turn = 'white';
+
+    let initialBoard = [
+      ['♜','♞','♝','♛','♚','♝','♞','♜'],
+      ['♟','♟','♟','♟','♟','♟','♟','♟'],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['♙','♙','♙','♙','♙','♙','♙','♙'],
+      ['♖','♘','♗','♕','♔','♗','♘','♖'],
+    ];
+
+    const originalSetup = JSON.parse(JSON.stringify(initialBoard));
+
+    function getColor(row, col) {
+      return (row + col) % 2 === 0 ? 'white' : 'black';
+    }
+
+    function isWhitePiece(piece) {
+      return ['♙','♖','♘','♗','♕','♔'].includes(piece);
+    }
+
+    function isBlackPiece(piece) {
+      return ['♟','♜','♞','♝','♛','♚'].includes(piece);
+    }
+
+    function createBoard() {
+      board.innerHTML = '';
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const cell = document.createElement('div');
+          cell.className = `cell ${getColor(row, col)}`;
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+
+          const piece = initialBoard[row][col];
+          if (piece) {
+            const span = document.createElement('span');
+            span.textContent = piece;
+            span.className = isWhitePiece(piece) ? 'white-piece' : 'black-piece';
+            cell.appendChild(span);
+          }
+
+          cell.addEventListener('click', () => handleClick(cell, row, col));
+          board.appendChild(cell);
+        }
+      }
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('selected', 'highlight');
+      });
+    }
+
+    function handleClick(cell, row, col) {
+      const piece = initialBoard[row][col];
+
+      if (selectedCell) {
+        const fromRow = +selectedCell.dataset.row;
+        const fromCol = +selectedCell.dataset.col;
+        const selectedPiece = initialBoard[fromRow][fromCol];
+
+        if (isValidMove(selectedPiece, fromRow, fromCol, row, col)) {
+          initialBoard[row][col] = selectedPiece;
+          initialBoard[fromRow][fromCol] = '';
+          turn = turn === 'white' ? 'black' : 'white';
+          statusText.textContent = `Turn: ${turn.charAt(0).toUpperCase() + turn.slice(1)}`;
+        }
+
+        clearHighlights();
+        selectedCell = null;
+        createBoard();
+      } else {
+        if ((turn === 'white' && isWhitePiece(piece)) ||
+            (turn === 'black' && isBlackPiece(piece))) {
+          selectedCell = cell;
+          cell.classList.add('selected');
+          highlightPossibleMoves(row, col);
+        }
+      }
+    }
+
+    function isValidMove(piece, fromRow, fromCol, toRow, toCol) {
+      const target = initialBoard[toRow][toCol];
+      if (turn === 'white' && isWhitePiece(target)) return false;
+      if (turn === 'black' && isBlackPiece(target)) return false;
+      if (fromRow === toRow && fromCol === toCol) return false;
+
+      return true; // simplified logic
+    }
+
+    function highlightPossibleMoves(row, col) {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (isValidMove(initialBoard[row][col], row, col, r, c)) {
+            document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`).classList.add('highlight');
+          }
+        }
+      }
+    }
+
+    resetBtn.addEventListener('click', () => {
+      initialBoard = JSON.parse(JSON.stringify(originalSetup));
+      selectedCell = null;
+      turn = 'white';
+      statusText.textContent = "Turn: White";
+      createBoard();
+    });
+
+    createBoard();
+  </script>
+</body>
+</html>
