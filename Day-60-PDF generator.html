@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Advanced PDF Generator with Images</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin: 40px 0 20px;
+      font-size: 2.5rem;
+      text-align: center;
+      background: linear-gradient(90deg, #ff6a00, #ee0979);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      resize: none;
+      margin-bottom: 20px;
+      outline: none;
+      transition: box-shadow 0.3s;
+    }
+
+    textarea:focus {
+      box-shadow: 0 0 10px #ee0979;
+    }
+
+    input[type="file"] {
+      color: #ddd;
+      margin-bottom: 10px;
+    }
+
+    #imagePreview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .image-preview-container {
+      position: relative;
+    }
+
+    #imagePreview img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s;
+      cursor: move;
+    }
+
+    #imagePreview img:hover {
+      transform: scale(1.05);
+    }
+
+    button {
+      background: linear-gradient(135deg, #ee0979, #ff6a00);
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: block;
+      margin: 20px auto 0;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    footer {
+      margin: 30px 0 10px;
+      font-size: 14px;
+      color: #bbb;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📄 PDF Generator with Images</h1>
+  <div class="container">
+    <textarea id="textInput" placeholder="Write your notes or content here..."></textarea>
+
+    <input type="file" id="imageInput" accept="image/*" multiple />
+    <div id="imagePreview"></div>
+
+    <button onclick="generatePDF()">Download PDF</button>
+  </div>
+
+  <footer>✨ Made with HTML, CSS, JS & jsPDF</footer>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    let imageFiles = [];
+
+    imageInput.addEventListener('change', (e) => {
+      imageFiles = Array.from(e.target.files);
+      imagePreview.innerHTML = '';
+
+      imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const imgContainer = document.createElement('div');
+          imgContainer.classList.add('image-preview-container');
+
+          const img = document.createElement('img');
+          img.src = event.target.result;
+
+          const removeButton = document.createElement('span');
+          removeButton.innerHTML = '❌';
+          removeButton.style.position = 'absolute';
+          removeButton.style.top = '5px';
+          removeButton.style.right = '5px';
+          removeButton.style.color = '#ff6a00';
+          removeButton.style.cursor = 'pointer';
+
+          removeButton.onclick = () => {
+            imagePreview.removeChild(imgContainer);
+            imageFiles = imageFiles.filter(f => f !== file);
+          };
+
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(removeButton);
+          imagePreview.appendChild(imgContainer);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    async function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const text = document.getElementById("textInput").value;
+      const lines = doc.splitTextToSize(text, 180);
+      doc.text(lines, 10, 20);
+
+      let yOffset = 30 + lines.length * 7;
+
+      for (let file of imageFiles) {
+        const imgData = await readFileAsDataURL(file);
+        const img = new Image();
+        img.src = imgData;
+
+        await new Promise((resolve) => {
+          img.onload = () => {
+            const width = 180;
+            const ratio = img.height / img.width;
+            const height = width * ratio;
+
+            if (yOffset + height > 270) {
+              doc.addPage();
+              yOffset = 20;
+            }
+
+            doc.addImage(img, 'JPEG', 10, yOffset, width, height);
+            yOffset += height + 10;
+            resolve();
+          };
+        });
+      }
+
+      doc.save("document.pdf");
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
