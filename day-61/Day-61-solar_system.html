@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🌌 3D Solar System Simulation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: black;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+    h1 {
+      text-align: center;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      padding: 20px;
+      font-size: 2em;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* Star styles */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      width: 2px;
+      height: 2px;
+      opacity: 0.8;
+      animation: twinkle 2s infinite alternate;
+    }
+
+    .star.big {
+      width: 5px;
+      height: 5px;
+      box-shadow: 0 0 10px white;
+      animation: twinkle-big 2s infinite alternate;
+    }
+
+    .star.moving {
+      animation: moveStar linear infinite, twinkle 3s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.5); }
+    }
+
+    @keyframes twinkle-big {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.8); }
+    }
+
+    /* We’ll generate custom @keyframes per star in JS */
+
+    .solar-system {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      z-index: 1;
+    }
+
+    .sun {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120px;
+      height: 120px;
+      background: url('download.jpeg') center/cover no-repeat;
+      border-radius: 50%;
+      box-shadow: 0 0 80px 40px #ffaa00;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .orbit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .planet {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Planets */
+    .mercury { width: 25px; height: 25px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/2e/Mercury_in_true_color.jpg'); animation: rotate 5s linear infinite; }
+    .venus   { width: 35px; height: 35px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg'); animation: rotate 8s linear infinite; }
+    .earth   { width: 45px; height: 45px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg'); animation: rotate 12s linear infinite; }
+    .mars    { width: 54px; height: 54px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg'); animation: rotate 16s linear infinite; }
+    .jupiter { width: 60px; height: 60px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg'); animation: rotate 20s linear infinite; }
+    .saturn  { width: 54px; height: 54px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg'); animation: rotate 24s linear infinite; }
+    .uranus  { width: 45px; height: 45px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg'); animation: rotate 28s linear infinite; }
+    .neptune { width: 54px; height: 54px; background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg'); animation: rotate 32s linear infinite; }
+
+    @keyframes rotate {
+      0% { transform: rotateZ(0deg) translateX(var(--distance)) rotateZ(0deg); }
+      100% { transform: rotateZ(360deg) translateX(var(--distance)) rotateZ(-360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<h1> 🌞 3D Solar System Simulation 🚀</h1>
+
+<!-- 🌟 Stars Script (Twinkling + Some Moving) -->
+<script>
+  const sheet = document.styleSheets[0];
+
+  for (let i = 0; i < 100; i++) {
+    const star = document.createElement("div");
+    star.classList.add("star");
+
+    const isBig = Math.random() < 0.2;
+    if (isBig) star.classList.add("big");
+
+    const isMoving = Math.random() < 0.3;
+    if (isMoving) {
+      const moveName = `moveStar${i}`;
+      const xShift = (Math.random() * 100 - 50).toFixed(1);
+      const yShift = (Math.random() * 100 - 50).toFixed(1);
+      const duration = (20 + Math.random() * 30).toFixed(1) + 's';
+
+      star.classList.add("moving");
+      star.style.animationDuration = `${duration}, 2s`;
+
+      // Create dynamic animation
+      const keyframes =
+        `@keyframes ${moveName} {
+          0% { transform: translate(0, 0); }
+          100% { transform: translate(${xShift}px, ${yShift}px); }
+        }`;
+      sheet.insertRule(keyframes, sheet.cssRules.length);
+      star.style.animationName = `${moveName}, twinkle`;
+    }
+
+    star.style.top = Math.random() * 100 + "vh";
+    star.style.left = Math.random() * 100 + "vw";
+    document.body.appendChild(star);
+  }
+</script>
+
+<!-- 🌞 Solar System -->
+<div class="solar-system">
+  <div class="sun"></div>
+
+  <div class="orbit" style="width: 100px; height: 100px;"><div class="planet mercury" style="--distance: 50px;"></div></div>
+  <div class="orbit" style="width: 150px; height: 150px;"><div class="planet venus" style="--distance: 75px;"></div></div>
+  <div class="orbit" style="width: 200px; height: 200px;"><div class="planet earth" style="--distance: 100px;"></div></div>
+  <div class="orbit" style="width: 260px; height: 260px;"><div class="planet mars" style="--distance: 130px;"></div></div>
+  <div class="orbit" style="width: 340px; height: 340px;"><div class="planet jupiter" style="--distance: 170px;"></div></div>
+  <div class="orbit" style="width: 420px; height: 420px;"><div class="planet saturn" style="--distance: 210px;"></div></div>
+  <div class="orbit" style="width: 500px; height: 500px;"><div class="planet uranus" style="--distance: 250px;"></div></div>
+  <div class="orbit" style="width: 580px; height: 580px;"><div class="planet neptune" style="--distance: 290px;"></div></div>
+</div>
+
+</body>
+</html>
