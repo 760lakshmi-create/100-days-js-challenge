@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sudoku Solver</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        /* Sudoku Board */
+        .sudoku-board {
+            width: min(90vw, 450px);
+            aspect-ratio: 1 / 1;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            border: 3px solid #333;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #bbb;
+            text-align: center;
+            font-size: clamp(18px, 5vw, 28px);
+            font-weight: bold;
+            outline: none;
+            color: #333;
+            background: white;
+        }
+
+        .cell:focus {
+            background: #eef2ff;
+        }
+
+        /* 3x3 box borders */
+
+        .cell:nth-child(3n) {
+            border-right: 2px solid #333;
+        }
+
+        .cell:nth-child(9n) {
+            border-right: none;
+        }
+
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid #333;
+        }
+
+        .cell:nth-child(n+1):nth-child(-n+9) {
+            border-top: none;
+        }
+
+        .cell:nth-child(n+73):nth-child(-n+81) {
+            border-bottom: none;
+        }
+
+        /* Buttons */
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .solve-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #333;
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #message {
+            min-height: 22px;
+            margin-top: 18px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #16a34a;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .info {
+            color: #555;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            .buttons {
+                gap: 8px;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Sudoku Solver</h1>
+
+        <p class="subtitle">
+            Enter numbers and click Solve Sudoku
+        </p>
+
+        <!-- Sudoku Grid -->
+        <div class="sudoku-board" id="sudokuBoard"></div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+
+            <button class="solve-btn" onclick="solveSudoku()">
+                Solve Sudoku
+            </button>
+
+            <button class="clear-btn" onclick="clearBoard()">
+                Clear
+            </button>
+
+            <button class="reset-btn" onclick="resetBoard()">
+                Reset
+            </button>
+
+        </div>
+
+        <div id="message"></div>
+
+    </div>
+
+
+    <script>
+
+        const board = document.getElementById("sudokuBoard");
+        const message = document.getElementById("message");
+
+        /*
+            Example Sudoku
+
+            5 3 . . 7 . . . .
+            6 . . 1 9 5 . . .
+            . 9 8 . . . . 6 .
+            8 . . . 6 . . . 3
+            4 . . 8 . 3 . . 1
+            7 . . . 2 . . . 6
+            . 6 . . . . 2 8 .
+            . . . 4 1 9 . . 5
+            . . . . 8 . . 7 9
+        */
+
+        const defaultPuzzle = [
+            5, 3, 0, 0, 7, 0, 0, 0, 0,
+            6, 0, 0, 1, 9, 5, 0, 0, 0,
+            0, 9, 8, 0, 0, 0, 0, 6, 0,
+
+            8, 0, 0, 0, 6, 0, 0, 0, 3,
+            4, 0, 0, 8, 0, 3, 0, 0, 1,
+            7, 0, 0, 0, 2, 0, 0, 0, 6,
+
+            0, 6, 0, 0, 0, 0, 2, 8, 0,
+            0, 0, 0, 4, 1, 9, 0, 0, 5,
+            0, 0, 0, 0, 8, 0, 0, 7, 9
+        ];
+
+
+        // Create 81 input cells
+        function createBoard() {
+
+            board.innerHTML = "";
+
+            for (let i = 0; i < 81; i++) {
+
+                const input = document.createElement("input");
+
+                input.type = "text";
+                input.className = "cell";
+                input.maxLength = 1;
+                input.inputMode = "numeric";
+
+                if (defaultPuzzle[i] !== 0) {
+                    input.value = defaultPuzzle[i];
+                }
+
+                // Only allow numbers 1-9
+                input.addEventListener("input", function () {
+
+                    this.value = this.value.replace(/[^1-9]/g, "");
+
+                });
+
+                board.appendChild(input);
+            }
+        }
+
+
+        // Get Sudoku values
+        function getBoard() {
+
+            const cells = document.querySelectorAll(".cell");
+
+            const sudoku = [];
+
+            cells.forEach(cell => {
+
+                const value = parseInt(cell.value);
+
+                sudoku.push(isNaN(value) ? 0 : value);
+
+            });
+
+            return sudoku;
+        }
+
+
+        // Display Sudoku values
+        function displayBoard(sudoku) {
+
+            const cells = document.querySelectorAll(".cell");
+
+            for (let i = 0; i < 81; i++) {
+
+                cells[i].value = sudoku[i] === 0 ? "" : sudoku[i];
+
+            }
+        }
+
+
+        // Check whether number can be placed
+        function isValid(board, row, col, num) {
+
+            // Check row
+            for (let x = 0; x < 9; x++) {
+
+                if (board[row * 9 + x] === num) {
+                    return false;
+                }
+
+            }
+
+
+            // Check column
+            for (let x = 0; x < 9; x++) {
+
+                if (board[x * 9 + col] === num) {
+                    return false;
+                }
+
+            }
+
+
+            // Check 3x3 box
+            const startRow = Math.floor(row / 3) * 3;
+            const startCol = Math.floor(col / 3) * 3;
+
+            for (let r = 0; r < 3; r++) {
+
+                for (let c = 0; c < 3; c++) {
+
+                    const index = (startRow + r) * 9 + (startCol + c);
+
+                    if (board[index] === num) {
+                        return false;
+                    }
+
+                }
+
+            }
+
+            return true;
+        }
+
+
+        // Sudoku solving algorithm
+        function solve(board) {
+
+            for (let row = 0; row < 9; row++) {
+
+                for (let col = 0; col < 9; col++) {
+
+                    const index = row * 9 + col;
+
+                    if (board[index] === 0) {
+
+                        for (let num = 1; num <= 9; num++) {
+
+                            if (isValid(board, row, col, num)) {
+
+                                board[index] = num;
+
+                                if (solve(board)) {
+                                    return true;
+                                }
+
+                                board[index] = 0;
+                            }
+                        }
+
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+
+        // Solve button
+        function solveSudoku() {
+
+            const sudoku = getBoard();
+
+            // Check duplicate values
+            if (!isInitialBoardValid(sudoku)) {
+
+                message.textContent =
+                    "Invalid Sudoku! Duplicate number found.";
+
+                message.className = "error";
+
+                return;
+            }
+
+
+            const solution = [...sudoku];
+
+            if (solve(solution)) {
+
+                displayBoard(solution);
+
+                message.textContent =
+                    "Sudoku solved successfully!";
+
+                message.className = "success";
+
+            } else {
+
+                message.textContent =
+                    "This Sudoku cannot be solved.";
+
+                message.className = "error";
+
+            }
+        }
+
+
+        // Validate starting board
+        function isInitialBoardValid(board) {
+
+            for (let row = 0; row < 9; row++) {
+
+                for (let col = 0; col < 9; col++) {
+
+                    const index = row * 9 + col;
+                    const num = board[index];
+
+                    if (num === 0) {
+                        continue;
+                    }
+
+                    // Temporarily remove number
+                    board[index] = 0;
+
+                    if (!isValid(board, row, col, num)) {
+
+                        board[index] = num;
+
+                        return false;
+                    }
+
+                    board[index] = num;
+                }
+            }
+
+            return true;
+        }
+
+
+        // Clear everything
+        function clearBoard() {
+
+            const cells = document.querySelectorAll(".cell");
+
+            cells.forEach(cell => {
+                cell.value = "";
+            });
+
+            message.textContent = "";
+            message.className = "";
+        }
+
+
+        // Reset to default puzzle
+        function resetBoard() {
+
+            createBoard();
+
+            message.textContent =
+                "Puzzle has been reset.";
+
+            message.className = "info";
+        }
+
+
+        // Start
+        createBoard();
+
+    </script>
+
+</body>
+</html>
