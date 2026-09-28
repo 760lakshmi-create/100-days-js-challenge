@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Interactive Periodic Table</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  body {
+    margin: 0;
+    background: #121212;
+    color: #eee;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+    color: #00d8ff;
+    text-shadow: 0 0 5px #00d8ff;
+  }
+
+  #search-box {
+    margin-bottom: 20px;
+    width: 300px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #222;
+    color: #eee;
+    box-shadow: 0 0 10px #00d8ff33;
+    transition: box-shadow 0.3s ease;
+  }
+  #search-box:focus {
+    box-shadow: 0 0 20px #00d8ffaa;
+  }
+
+  #periodic-table {
+    display: grid;
+    grid-template-columns: repeat(18, 60px);
+    grid-auto-rows: 75px;
+    gap: 8px;
+    max-width: 1140px;
+    width: 100%;
+  }
+
+  .element {
+    background: #222;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px #111;
+    cursor: pointer;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    position: relative;
+  }
+
+  .element:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 19px #00d8ff;
+    z-index: 10;
+    
+  }
+
+  .number {
+    font-size: 12px;
+    opacity: 0.6;
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    font-weight: 700;
+  }
+
+  .symbol {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .name {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  /* Color coding by group */
+  .alkali { background: #ff6659; }       /* Group 1 */
+  .alkaline-earth { background: #ff9f59; } /* Group 2 */
+  .transition { background: #e1085f; color: #222; } /* Groups 3-12 */
+  .post-transition { background: #25dc3b; color: #222; } /* Groups 13-16 */
+  .metalloid { background: #7e57c2; }
+  .nonmetal { background: #81d4fa; color: #222; }
+  .halogen { background: #ffca28; color: #222; }
+  .noble-gas { background: #448aff; }
+  .lanthanide { background: #ff80ab; color: #222; }
+  .actinide { background: #ea80fc; color: #222; }
+  .act{background: #1ce2c8; color: #222; }
+
+  /* Legend */
+  #legend {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    max-width: 1140px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+  }
+  .alkali.legend-color { background: #ff6659; }
+  .alkaline-earth.legend-color { background: #ff9f59; }
+  .transition.legend-color { background: #b00446; }
+  .post-transition.legend-color { background: #69f0ae; }
+  .metalloid.legend-color { background: #7e57c2; }
+  .nonmetal.legend-color { background: #81d4fa; }
+  .halogen.legend-color { background: #ffca28; }
+  .noble-gas.legend-color { background: #f9e69d; }
+  .lanthanide.legend-color { background: #ff80ab; }
+  .actinide.legend-color { background: #ea80fc; }
+  .ab{background-color: #bb0743;}
+
+  /* Modal */
+  #modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 18, 18, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+  }
+  #modal.visible {
+    visibility: visible;
+    opacity: 1;
+  }
+  #modal-content {
+    background: #222;
+    padding: 25px 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 20px #00d8ffaa;
+    position: relative;
+    color: #eee;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  #modal-close {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #00d8ff;
+    font-weight: 700;
+  }
+  #modal-close:hover {
+    color: #00b0ff;
+  }
+</style>
+</head>
+<body>
+
+<h1>Interactive Periodic Table</h1>
+<input type="text" id="search-box" placeholder="Search by name, symbol, or atomic number..." />
+
+<div id="periodic-table"></div>
+
+
+<!-- Modal for detailed element info -->
+<div id="modal">
+  <div id="modal-content">
+    <span id="modal-close">&times;</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+  const elements = [
+    { number: 1, symbol: "H", name: "Hydrogen", weight: "1.008", group: 1, period: 1, category: "nonmetal", description: "Hydrogen is the lightest element and the most abundant chemical substance in the universe." },
+    { number: 2, symbol: "He", name: "Helium", weight: "4.0026", group: 18, period: 1, category: "noble-gas", description: "Helium is a noble gas, used in balloons and as a cooling medium." },
+    { number: 3, symbol: "Li", name: "Lithium", weight: "6.94", group: 1, period: 2, category: "alkali", description: "Lithium is an alkali metal, important for rechargeable batteries." },
+    { number: 4, symbol: "Be", name: "Beryllium", weight: "9.0122", group: 2, period: 2, category: "metalloid", description: "Beryllium is a lightweight metal with high melting point." },
+    { number: 5, symbol: "B", name: "Boron", weight: "10.81", group: 13, period: 2, category: "metalloid", description: "Boron is a metalloid used in glass and detergents." },
+    { number: 6, symbol: "C", name: "Carbon", weight: "12.011", group: 14, period: 2, category: "nonmetal", description: "Carbon is essential for life and forms countless compounds." },
+    { number: 7, symbol: "N", name: "Nitrogen", weight: "14.007", group: 15, period: 2, category: "nonmetal", description: "Nitrogen makes up about 78% of Earth's atmosphere." },
+    { number: 8, symbol: "O", name: "Oxygen", weight: "15.999", group: 16, period: 2, category: "nonmetal", description: "Oxygen is vital for respiration and combustion." },
+    { number: 9, symbol: "F", name: "Fluorine", weight: "18.998", group: 17, period: 2, category: "transition", description: "Fluorine is the most reactive halogen." },
+    { number: 10, symbol: "Ne", name: "Neon", weight: "20.180", group: 18, period: 2, category: "noble-gas", description: "Neon is used in bright neon lights." },
+    // ... For brevity, add all other elements similarly with category and description ...
+    // For demo, I'll add a few more key elements:
+    { number: 11, symbol: "Na", name: "Sodium", weight: "22.990", group: 1, period: 3, category: "alkali", description: "Sodium is a reactive alkali metal, important for nerve function." },
+    { number: 12, symbol: "Mg", name: "Magnesium", weight: "24.305", group: 2, period: 3,category: "metalloid", description: "Magnesium is a light metal used in alloys." },
+    { number: 13, symbol: "Al", name: "Aluminium", weight: "26.982", group: 13, period: 3, category: "post-transition", description: "Aluminium is a lightweight metal used widely in packaging and construction." },
+    { number: 14, symbol: "Si", name: "Silicon", weight: "28.085", group: 14, period: 3, category: "metalloid", description: "Silicon is a semiconductor widely used in electronics." },
+    { number: 15, symbol: "P", name: "Phosphorus", weight: "30.974", group: 15, period: 3, category: "nonmetal", description: "Phosphorus is essential for DNA and energy transfer in cells." },
+    { number: 16, symbol: "S", name: "Sulfur", weight: "32.06", group: 16, period: 3, category: "nonmetal", description: "Sulfur is used in fertilizers and chemical manufacturing." },
+    { number: 17, symbol: "Cl", name: "Chlorine", weight: "35.45", group: 17, period: 3, category: "transition", description: "Chlorine is used for water purification." },
+    { number: 18, symbol: "Ar", name: "Argon", weight: "39.948", group: 18, period: 3, category: "noble-gas", description: "Argon is an inert gas used in welding." },
+    // Add more elements as needed ...
+    { number: 19, symbol: "K", name: "Potassium", weight: "39.098", group: 1, period: 4,category: "alkali" },
+    { number: 20, symbol: "Ca", name: "Calcium", weight: "40.078", group: 2, period: 4 ,category: "metalloid"},
+    { number: 21, symbol: "Sc", name: "Scandium", weight: "44.956", group: 3, period: 4 , category: "halogen"},
+    { number: 22, symbol: "Ti", name: "Titanium", weight: "47.867", group: 4, period: 4 , category: "halogen"},
+    { number: 23, symbol: "V", name: "Vanadium", weight: "50.942", group: 5, period: 4, category: "halogen" },
+    { number: 24, symbol: "Cr", name: "Chromium", weight: "51.996", group: 6, period: 4 , category: "halogen"},
+    { number: 25, symbol: "Mn", name: "Manganese", weight: "54.938", group: 7, period: 4, category: "halogen" },
+    { number: 26, symbol: "Fe", name: "Iron", weight: "55.845", group: 8, period: 4, category: "halogen" },
+    { number: 27, symbol: "Co", name: "Cobalt", weight: "58.933", group: 9, period: 4 , category: "halogen"},
+    { number: 28, symbol: "Ni", name: "Nickel", weight: "58.693", group: 10, period: 4, category: "halogen" },
+    { number: 29, symbol: "Cu", name: "Copper", weight: "63.546", group: 11, period: 4 , category: "halogen"},
+    { number: 30, symbol: "Zn", name: "Zinc", weight: "65.38", group: 12, period: 4, category: "halogen" },
+    { number: 31, symbol: "Ga", name: "Gallium", weight: "69.723", group: 13, period: 4 ,category: "post-transition"},
+    { number: 32, symbol: "Ge", name: "Germanium", weight: "72.630", group: 14, period: 4 ,category: "metalloid"},
+    { number: 33, symbol: "As", name: "Arsenic", weight: "74.922", group: 15, period: 4 ,category: "metalloid"},
+    { number: 34, symbol: "Se", name: "Selenium", weight: "78.971", group: 16, period: 4 ,category: "nonmetal"},
+    { number: 35, symbol: "Br", name: "Bromine", weight: "79.904", group: 17, period: 4 ,category: "transition",},
+    { number: 36, symbol: "Kr", name: "Krypton", weight: "83.798", group: 18, period: 4,category: "noble-gas" },
+ { number: 37, symbol: "Rb", name: "Rubidium", weight: "85.468", group: 1, period: 5,category: "alkali" },
+    { number: 38, symbol: "Sr", name: "Strontium", weight: "87.62", group: 2, period: 5,category: "metalloid" },
+    { number: 39, symbol: "Y", name: "Yttrium", weight: "88.906", group: 3, period: 5 , category: "halogen"},
+    { number: 40, symbol: "Zr", name: "Zirconium", weight: "91.224", group: 4, period: 5, category: "halogen" },
+    { number: 41, symbol: "Nb", name: "Niobium", weight: "92.906", group: 5, period: 5 , category: "halogen"},
+    { number: 42, symbol: "Mo", name: "Molybdenum", weight: "95.95", group: 6, period: 5 , category: "halogen"},
+    { number: 43, symbol: "Tc", name: "Technetium", weight: "[98]", group: 7, period: 5, category: "halogen" },
+    { number: 44, symbol: "Ru", name: "Ruthenium", weight: "101.07", group: 8, period: 5 , category: "halogen"},
+    { number: 45, symbol: "Rh", name: "Rhodium", weight: "102.91", group: 9, period: 5, category: "halogen" },
+    { number: 46, symbol: "Pd", name: "Palladium", weight: "106.42", group: 10, period: 5 , category: "halogen"},
+    { number: 47, symbol: "Ag", name: "Silver", weight: "107.87", group: 11, period: 5 , category: "halogen"},
+    { number: 48, symbol: "Cd", name: "Cadmium", weight: "112.41", group: 12, period: 5, category: "halogen" },
+    { number: 49, symbol: "In", name: "Indium", weight: "114.82", group: 13, period: 5 ,category: "post-transition"},
+    { number: 50, symbol: "Sn", name: "Tin", weight: "118.71", group: 14, period: 5 ,category: "post-transition"},
+    { number: 51, symbol: "Sb", name: "Antimony", weight: "121.76", group: 15, period: 5,category: "metalloid" },
+    { number: 52, symbol: "Te", name: "Tellurium", weight: "127.60", group: 16, period: 5 ,category: "metalloid"},
+    { number: 53, symbol: "I", name: "Iodine", weight: "126.90", group: 17, period: 5 ,category: "transition",},
+    { number: 54, symbol: "Xe", name: "Xenon", weight: "131.29", group: 18, period: 5 ,category: "noble-gas"},
+
+    { number: 55, symbol: "Cs", name: "Cesium", weight: "132.91", group: 1, period: 6 ,category: "alkali"},
+    { number: 56, symbol: "Ba", name: "Barium", weight: "137.33", group: 2, period: 6 ,category: "metalloid"},
+    // Lanthanides (placed separately below, but group 3, period 6):
+    { number: 57, symbol: "La", name: "Lanthanum", weight: "138.91", group: 3, period: 6 },
+    { number: 58, symbol: "Ce", name: "Cerium", weight: "140.12", group: null, period: 8,category:"act" }, // Lanthanide row
+    { number: 59, symbol: "Pr", name: "Praseodymium", weight: "140.91", group: null, period: 8 ,category:"act"},
+    { number: 60, symbol: "Nd", name: "Neodymium", weight: "144.24", group: null, period: 8,category:"act" },
+    { number: 61, symbol: "Pm", name: "Promethium", weight: "[145]", group: null, period: 8,category:"act" },
+    { number: 62, symbol: "Sm", name: "Samarium", weight: "150.36", group: null, period: 8 ,category:"act"},
+    { number: 63, symbol: "Eu", name: "Europium", weight: "151.96", group: null, period: 8 ,category:"act"},
+    { number: 64, symbol: "Gd", name: "Gadolinium", weight: "157.25", group: null, period: 8,category:"act" },
+    { number: 65, symbol: "Tb", name: "Terbium", weight: "158.93", group: null, period: 8,category:"act" },
+    { number: 66, symbol: "Dy", name: "Dysprosium", weight: "162.50", group: null, period: 8 ,category:"act"},
+    { number: 67, symbol: "Ho", name: "Holmium", weight: "164.93", group: null, period: 8 ,category:"act"},
+    { number: 68, symbol: "Er", name: "Erbium", weight: "167.26", group: null, period: 8 ,category:"act"},
+    { number: 69, symbol: "Tm", name: "Thulium", weight: "168.93", group: null, period: 8 ,category:"act"},
+    { number: 70, symbol: "Yb", name: "Ytterbium", weight: "173.05", group: null, period: 8 ,category:"act"},
+    { number: 71, symbol: "Lu", name: "Lutetium", weight: "174.97", group: 3, period: 6 ,  category: "post-transition"},
+
+    { number: 72, symbol: "Hf", name: "Hafnium", weight: "178.49", group: 4, period: 6, category: "halogen" },
+    { number: 73, symbol: "Ta", name: "Tantalum", weight: "180.95", group: 5, period: 6, category: "halogen" },
+    { number: 74, symbol: "W", name: "Tungsten", weight: "183.84", group: 6, period: 6, category: "halogen" },
+    { number: 75, symbol: "Re", name: "Rhenium", weight: "186.21", group: 7, period: 6, category: "halogen" },
+    { number: 76, symbol: "Os", name: "Osmium", weight: "190.23", group: 8, period: 6 , category: "halogen"},
+    { number: 77, symbol: "Ir", name: "Iridium", weight: "192.22", group: 9, period: 6 , category: "halogen"},
+    { number: 78, symbol: "Pt", name: "Platinum", weight: "195.08", group: 10, period: 6 , category: "halogen"},
+    { number: 79, symbol: "Au", name: "Gold", weight: "196.97", group: 11, period: 6, category: "halogen" },
+    { number: 80, symbol: "Hg", name: "Mercury", weight: "200.59", group: 12, period: 6 , category: "halogen"},
+    { number: 81, symbol: "Tl", name: "Thallium", weight: "204.38", group: 13, period: 6 ,category: "post-transition"},
+    { number: 82, symbol: "Pb", name: "Lead", weight: "207.2", group: 14, period: 6,category: "post-transition" },
+    { number: 83, symbol: "Bi", name: "Bismuth", weight: "208.98", group: 15, period: 6 ,category: "post-transition"},
+    { number: 84, symbol: "Po", name: "Polonium", weight: "[209]", group: 16, period: 6 ,category: "metalloid"},
+    { number: 85, symbol: "At", name: "Astatine", weight: "[210]", group: 17, period: 6,category: "transition", },
+    { number: 86, symbol: "Rn", name: "Radon", weight: "[222]", group: 18, period: 6,category: "noble-gas" },
+
+    { number: 87, symbol: "Fr", name: "Francium", weight: "[223]", group: 1, period: 7 ,category: "alkali"},
+    { number: 88, symbol: "Ra", name: "Radium", weight: "[226]", group: 2, period: 7,category: "metalloid" },
+    // Actinides (placed separately below, but group 3, period 7):
+    { number: 89, symbol: "Ac", name: "Actinium", weight: "[227]", group: 3, period: 9 , category: "lanthanide"}, // actinide row
+    { number: 90, symbol: "Th", name: "Thorium", weight: "232.04", group: null, period: 9, category: "lanthanide" },
+    { number: 91, symbol: "Pa", name: "Protactinium", weight: "231.04", group: null, period: 9, category: "lanthanide" },
+    { number: 92, symbol: "U", name: "Uranium", weight: "238.03", group: null, period: 9 , category: "lanthanide"},
+    { number: 93, symbol: "Np", name: "Neptunium", weight: "[237]", group: null, period: 9 , category: "lanthanide"},
+    { number: 94, symbol: "Pu", name: "Plutonium", weight: "[244]", group: null, period: 9 , category: "lanthanide"},
+    { number: 95, symbol: "Am", name: "Americium", weight: "[243]", group: null, period: 9 , category: "lanthanide"},
+    { number: 96, symbol: "Cm", name: "Curium", weight: "[247]", group: null, period: 9 , category: "lanthanide"},
+    { number: 97, symbol: "Bk", name: "Berkelium", weight: "[247]", group: null, period: 9 , category: "lanthanide"},
+    { number: 98, symbol: "Cf", name: "Californium", weight: "[251]", group: null, period: 9, category: "lanthanide" },
+    { number: 99, symbol: "Es", name: "Einsteinium", weight: "[252]", group: null, period: 9 , category: "lanthanide"},
+    { number: 100, symbol: "Fm", name: "Fermium", weight: "[257]", group: null, period: 9 , category: "lanthanide"},
+    { number: 101, symbol: "Md", name: "Mendelevium", weight: "[258]", group: null, period: 9 , category: "lanthanide"},
+    { number: 102, symbol: "No", name: "Nobelium", weight: "[259]", group: null, period: 9 , category: "lanthanide"},
+    { number: 103, symbol: "Lr", name: "Lawrencium", weight: "[262]", group: 3, period: 7 , category: "lanthanide"},
+
+    { number: 104, symbol: "Rf", name: "Rutherfordium", weight: "[267]", group: 4, period: 7 , category: "halogen"},
+    { number: 105, symbol: "Db", name: "Dubnium", weight: "[270]", group: 5, period: 7 , category: "halogen"},
+    { number: 106, symbol: "Sg", name: "Seaborgium", weight: "[271]", group: 6, period: 7 , category: "halogen"},
+    { number: 107, symbol: "Bh", name: "Bohrium", weight: "[270]", group: 7, period: 7, category: "halogen" },
+    { number: 108, symbol: "Hs", name: "Hassium", weight: "[277]", group: 8, period: 7 , category: "halogen"},
+    { number: 109, symbol: "Mt", name: "Meitnerium", weight: "[276]", group: 9, period: 7 , category: "halogen"},
+    { number: 110, symbol: "Ds", name: "Darmstadtium", weight: "[281]", group: 10, period: 7 , category: "halogen"},
+    { number: 111, symbol: "Rg", name: "Roentgenium", weight: "[282]", group: 11, period: 7 , category: "halogen"},
+    { number: 112, symbol: "Cn", name: "Copernicium", weight: "[285]", group: 12, period: 7, category: "halogen" },
+    { number: 113, symbol: "Nh", name: "Nihonium", weight: "[286]", group: 13, period: 7,category: "post-transition" },
+    { number: 114, symbol: "Fl", name: "Flerovium", weight: "[289]", group: 14, period: 7 ,category: "post-transition"},
+    { number: 115, symbol: "Mc", name: "Moscovium", weight: "[290]", group: 15, period: 7 ,category: "post-transition"},
+    { number: 116, symbol: "Lv", name: "Livermorium", weight: "[293]", group: 16, period: 7 ,category: "post-transition"},
+    { number: 117, symbol: "Ts", name: "Tennessine", weight: "[294]", group: 17, period: 7 ,category: "transition",},
+    { number: 118, symbol: "Og", name: "Oganesson", weight: "[294]", group: 18, period: 7 ,category: "noble-gas"},
+  ];
+
+  // For demo, fill the rest with placeholders for layout completeness
+  const totalElements = 118;
+  for (let i = 19; i <= totalElements; i++) {
+    if (!elements.some(el => el.number === i)) {
+      elements.push({ number: i, symbol: "?", name: "Unknown", weight: "-", group: null, period: 0, category: "", description: "No data available." });
+    }
+  }
+
+  const table = document.getElementById("periodic-table");
+  const searchBox = document.getElementById("search-box");
+  const modal = document.getElementById("modal");
+  const modalBody = document.getElementById("modal-body");
+  const modalClose = document.getElementById("modal-close");
+
+  // Position map: standard periodic table positions (group = column, period = row)
+  // For demonstration, a simple layout: fill by group and period, fallback for nulls
+  function getGridPosition(el) {
+    // Handle lanthanides and actinides placed below (period 8 and 9)
+    if (el.period === 8) return { row: 8, col: el.number - 56 }; // lanthanides from 57 onwards
+    if (el.period === 9) return { row: 9, col: el.number - 88 }; // actinides from 89 onwards
+    if (el.group) return { row: el.period, col: el.group };
+    // fallback: place on last row and approximate col
+    return { row: el.period || 10, col: el.group || (el.number % 18) + 1 };
+  }
+
+  function createElementBox(el) {
+    const box = document.createElement("div");
+    box.classList.add("element");
+    if(el.category) box.classList.add(el.category);
+
+    const pos = getGridPosition(el);
+    box.style.gridRow = pos.row;
+    box.style.gridColumn = pos.col;
+
+    box.innerHTML = `
+      <div class="number">${el.number}</div>
+      <div class="symbol">${el.symbol}</div>
+      <div class="name">${el.name}</div>
+    `;
+
+    // Show modal on click
+    box.addEventListener("click", () => {
+      modalBody.innerHTML = `
+        <h2>${el.name} (${el.symbol})</h2>
+        <p><strong>Atomic Number:</strong> ${el.number}</p>
+        <p><strong>Atomic Weight:</strong> ${el.weight}</p>
+        <p>${el.description}</p>
+      `;
+      modal.classList.add("visible");
+    });
+
+    return box;
+  }
+
+  function renderTable(filterText = "") {
+    table.innerHTML = "";
+    const filtered = elements.filter(el => {
+      const term = filterText.toLowerCase();
+      return (
+        el.name.toLowerCase().includes(term) ||
+        el.symbol.toLowerCase().includes(term) ||
+        String(el.number).includes(term)
+      );
+    });
+    filtered.forEach(el => {
+      table.appendChild(createElementBox(el));
+    });
+  }
+
+  searchBox.addEventListener("input", (e) => {
+    renderTable(e.target.value);
+  });
+
+  modalClose.addEventListener("click", () => {
+    modal.classList.remove("visible");
+  });
+  modal.addEventListener("click", (e) => {
+    if(e.target === modal) modal.classList.remove("visible");
+  });
+
+  renderTable();
+
+</script>
+</body>
+</html>  
