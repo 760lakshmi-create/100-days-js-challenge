@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Download Button</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, #e3dbff, #f5f5fa);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .kon {
+      background: radial-gradient(circle at center, #000000, #060634);
+      height: 60vh;
+      width: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50px;
+    }
+
+    .button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+      transition: all 0.4s ease;
+      gap: 0;
+    }
+
+    /* Expand on hover only if not active */
+    .button:not(.downloading):not(.downloaded):hover {
+      width: 160px;
+      padding: 6px 8px;
+      border-radius: 45px;
+      gap: 16px;
+    }
+
+    /* Keep expanded when downloading or downloaded */
+    .button.downloading,
+    .button.downloaded {
+      width: 185px;
+      padding: 6px 8px;
+      border-radius: 45px;
+      gap: 16px;
+    }
+
+    .button:hover .text,
+    .button.downloading .text,
+    .button.downloaded .text {
+      opacity: 1;
+      width: auto;
+      margin-left: 8px;
+    }
+
+    .icon-box {
+      width: 42px;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 8px #00fff0;
+      transition: 0.4s ease;
+    }
+
+    .icon-box svg {
+      width: 22px;
+      height: 22px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: arrowMove 0.6s infinite alternate;
+    }
+
+    @keyframes arrowMove {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    .button.downloaded .icon-box svg {
+      animation: none;
+      stroke: #fff;
+    }
+
+    .text {
+      font-weight: 600;
+      font-size: 17px;
+      color: #ffffff;
+      white-space: nowrap;
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 0%;
+      background: linear-gradient(90deg, #00fff0, #00ffd5, #00fff0);
+      background-size: 200% 200%;
+      animation: progressMove 2s linear infinite;
+      transition: width 0.2s ease;
+    }
+
+    @keyframes progressMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="kon">
+    <div class="button" id="downloadBtn">
+      <div class="icon-box" id="iconBox">
+        <svg id="icon" viewBox="0 0 24 24">
+          <polyline points="6 12 12 18 18 12"></polyline>
+          <line x1="12" y1="6" x2="12" y2="18"></line>
+        </svg>
+      </div>
+      <div class="text" id="text">Download</div>
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <script>
+    const btn = document.getElementById("downloadBtn");
+    const text = document.getElementById("text");
+    const icon = document.getElementById("icon");
+    const progress = document.getElementById("progressBar");
+
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("downloading") || btn.classList.contains("downloaded")) return;
+
+      btn.classList.add("downloading");
+      let percent = 0;
+      text.textContent = percent + "%";
+
+      const interval = setInterval(() => {
+        percent += 1;
+        text.textContent = percent + "%";
+        progress.style.width = percent + "%";
+
+        if (percent >= 100) {
+          clearInterval(interval);
+          btn.classList.remove("downloading");
+          btn.classList.add("downloaded");
+          text.textContent = "Downloaded";
+          progress.style.background = "#4CAF50";
+          icon.innerHTML = `<polyline points="6 12 10 16 18 8"></polyline>`;
+        }
+      }, 30);
+    });
+  </script>
+</body>
+</html>
