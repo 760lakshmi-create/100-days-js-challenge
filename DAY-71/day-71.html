@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AirPods Max Showcase - Animated</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #76b36d, #131315);
+      transition: background 1.5s ease-in-out;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ✨ Lighting Overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 90%;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .text-content {
+      margin-left: 18%;
+      max-width: 45%;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .text-content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .text-content h3 {
+      font-size: 20px;
+      opacity: 0.8;
+    }
+
+    .text-content h1 {
+      font-size: 36px;
+      margin: 10px 0;
+      line-height: 1.2;
+    }
+
+    .text-content p {
+      font-size: 15px;
+      opacity: 0.75;
+      margin-bottom: 20px;
+    }
+
+    .price {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .image-section {
+      position: relative;
+      width: 800px;
+      height: 900px;
+    }
+
+    .headphone-img {
+      position: absolute;
+      width: 420px;
+      height: auto;
+      transition: all 1.5s ease-in-out;
+      opacity: 0.5;
+      transform: scale(0.7);
+      filter: blur(2px);
+      z-index: 1;
+     
+    }
+
+    .pos-center { 
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.05);
+      opacity: 1;
+      filter: none;
+      z-index: 3;
+      margin-right: 550px;
+      /* box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(255, 255, 255, 0.1); */
+      animation: pulse 3s infinite ease-in-out;
+       filter: drop-shadow(1px 4px 20px rgb(37, 34, 34));
+    }
+
+    .pos-top-right {
+      top: 8%;
+      left: 10%;
+      transform: translate(-50%, -50%) scale(0.7);
+      z-index: 2;
+      width: 150px;
+    }
+
+    .pos-bottom-right {
+      top: 92%;
+      left: 90%;
+      transform: translate(-50%, -50%) scale(0.7);
+      z-index: 2;
+      width: 100px;
+    }
+
+    /* ✨ Glow animation */
+    @keyframes pulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1.05);
+        /* box-shadow: 0 20px 60px rgba(255,255,255,0.08), 0 0 40px rgba(0,255,255,0.1); */
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        /* box-shadow: 0 30px 90px rgba(255,255,255,0.2), 0 0 60px rgba(0,255,255,0.2); */
+      }
+    }
+
+    /* Socials (optional bonus) */
+    .social-icons {
+      display: flex;
+      gap: 10px;
+    }
+    .social-icons i {
+      font-size: 20px;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    .social-icons i:hover {
+      transform: scale(1.3);
+    }
+
+  </style>
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="text-content" id="text-content">
+      <h3> @AirPods Max</h3><br><br><br>
+      <h1>Apple AirPods Max<br>Wireless Over-Ear Headphones.</h1><br><br>
+      <p>Active Noise Cancelling, Transparency Mode, Spatial Audio,<br>
+         Digital Crown for volume control, Bluetooth Headphones for iPhone.</p><br>
+      <div class="price">$779.99</div>
+      <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-instagram"></i>
+        <i class="fab fa-twitter"></i>
+      </div>
+    </div>
+
+    <div class="image-section">
+      <img src="h2_transparent.png" class="headphone-img pos-center" id="img0" />
+      <img src="file_0000000050d861f899164d6de29eca7b.png" class="headphone-img pos-top-right" id="img1" />
+      <img src="file_0000000074146230a7de75f3994a4454.png" class="headphone-img pos-bottom-right" id="img2" />
+    </div>
+  </div>
+
+  <script>
+    const images = [
+      document.getElementById("img0"),
+      document.getElementById("img1"),
+      document.getElementById("img2")
+    ];
+
+    const text = document.getElementById("text-content");
+    const positions = ["pos-center", "pos-top-right", "pos-bottom-right"];
+    const colors = [
+      "#1e1e2f", // img0
+      "#005f73", // img1
+      "#5d3a3a"  // img2
+    ];
+
+    let currentIndex = 0;
+
+    function rotateImages() {
+      // Animate text fade
+      text.classList.remove("visible");
+
+      // Move images
+      images.forEach(img => {
+        positions.forEach(pos => img.classList.remove(pos));
+      });
+
+      images[0].classList.add(positions[currentIndex % 3]);
+      images[1].classList.add(positions[(currentIndex + 1) % 3]);
+      images[2].classList.add(positions[(currentIndex + 2) % 3]);
+
+      // Change background
+      const newColor = colors[currentIndex % 3];
+      document.body.style.background = `radial-gradient(circle at center, ${newColor}, #131315)`;
+
+      // Show text with fade
+      setTimeout(() => {
+        text.classList.add("visible");
+      }, 500);
+
+      currentIndex = (currentIndex + 1) % 3;
+    }
+
+    setInterval(rotateImages, 3000);
+    // Initial load
+    setTimeout(() => text.classList.add("visible"), 300);
+  </script>
+</body>
+</html>
