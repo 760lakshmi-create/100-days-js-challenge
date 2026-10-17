@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spiral Text Animation</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .spiral {
+      position: relative;
+      transform-style: preserve-3d;
+      perspective: 800px;
+    }
+
+    .spiral span {
+      position: absolute;
+      font-size: 42px;
+      font-weight: bold;
+      transform-style: preserve-3d;
+      white-space: pre;
+      color: white;
+      text-shadow: 0 0 8px white, 0 0 15px white;
+      transition: opacity 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+
+<div class="spiral" id="spiral"></div>
+
+<script>
+  const spiral = document.getElementById("spiral");
+  const text = "css notable example ";
+  const total = 20;
+  const radius = 120;
+  const verticalSpacing = 25;
+  const spirals = 4;
+
+  const spiralColors = [
+    "hsl(0, 100%, 65%)",
+    "hsl(210, 100%, 65%)",
+    "hsl(120, 100%, 65%)",
+    "hsl(280, 100%, 70%)"
+  ];
+
+  const spans = [];
+
+  for (let s = 0; s < spirals; s++) {
+    for (let i = 0; i < total; i++) {
+      const char = text[i % text.length];
+      const span = document.createElement("span");
+
+      const baseAngle = (i * 15 + s * 360 / spirals);
+      const y = (i - total / 2) * verticalSpacing;
+
+      const color = spiralColors[s % spiralColors.length];
+      span.textContent = char;
+      span.style.color = color;
+      span.style.textShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
+
+      span.dataset.baseAngle = baseAngle;
+      span.dataset.y = y;
+
+      spiral.appendChild(span);
+      spans.push(span);
+    }
+  }
+
+  let rotation = 0;
+
+  function animate() {
+    rotation += 1.2;
+
+    spans.forEach(span => {
+      const angle = (parseFloat(span.dataset.baseAngle) + rotation) % 360;
+      const rad = angle * Math.PI / 180;
+      const x = Math.sin(rad) * radius;
+      const z = Math.cos(rad) * radius;
+      const y = parseFloat(span.dataset.y);
+
+      span.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+
+      const opacity = z < 0 ? Math.max(0, (z + radius) / (radius * 2)) : 1;
+      span.style.opacity = opacity;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>
