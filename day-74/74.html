@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instagram Clone Post</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .phone {
+      width: 360px;
+      background: #121212;
+      border-radius: 20px;
+      overflow: hidden;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #1a1a1a;
+    }
+
+    .logo {
+      font-family: 'Billabong', cursive;
+      font-size: 24px;
+    }
+
+    .dm-icon {
+      font-size: 18px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+    }
+
+    .post-header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .post-header img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .follow-btn {
+      background: transparent;
+      color: #0095f6;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .carousel {
+      position: relative;
+      height: 370px;
+      overflow: hidden;
+    }
+
+    .slides {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      min-width: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 24px;
+      color: white;
+      background: rgba(0, 0, 0, 0.4);
+      border: none;
+      border-radius: 50%;
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .arrow.left { left: 10px; }
+    .arrow.right { right: 10px; }
+
+    .indicator {
+      text-align: center;
+      padding: 6px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin: 0 3px;
+      border-radius: 50%;
+      background: #888;
+    }
+
+    .dot.active { background: #fff; }
+
+    .post-footer {
+      padding: 10px 14px;
+    }
+
+    .icons {
+      font-size: 20px;
+      display: flex;
+      justify-content: space-between;
+      padding-right: 40px;
+    }
+
+    .icons .left i {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .caption {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .caption strong { color: #fff; }
+
+    .post-count {
+      font-size: 12px;
+      text-align: right;
+      padding: 0 14px 5px;
+      color: #aaa;
+    }
+
+    .comment-box {
+      display: none;
+      padding: 10px 14px;
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .comment-box textarea {
+      flex: 1;
+      padding: 8px;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      resize: none;
+    }
+
+    .comment-section {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    .comment {
+      margin-bottom: 4px;
+    }
+
+    /* Share Popup */
+    .share-popup {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      width: 240px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+      font-size: 14px;
+    }
+
+    .share-popup button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 8px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .share-popup button:hover {
+      background: #333;
+    }
+    #likeBtn {
+  display: inline-block;
+  transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+#likeBtn.liked {
+  color: red;
+  animation: pop 0.3s ease forwards;
+}
+
+/* Heart popping animation */
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.4);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="top-bar">
+      <div class="logo">Instagram</div>
+      <div class="dm-icon">✉</div>
+    </div>
+
+    <div class="post-header">
+      <div class="post-header-left">
+        <img src="PIC1.jpg" alt="Profile">
+        <strong>joker.darkknight ✔</strong>
+      </div>
+      <button class="follow-btn" id="followBtn">Follow</button>
+    </div>
+
+    <div class="carousel">
+      <div class="slides" id="slides">
+        <div class="slide" style="background-image: url('PIC3.jpg');"></div>
+        <div class="slide" style="background-image: url('PIC4.jpg');"></div>
+        <div class="slide" style="background-image: url('PIC5.jpg');"></div>
+      </div>
+      <button class="arrow left" onclick="prevSlide()">❮</button>
+      <button class="arrow right" onclick="nextSlide()">❯</button>
+    </div>
+
+    <div class="indicator" id="dots"></div>
+
+    <div class="post-footer">
+      <div class="icons">
+        <div class="left">
+          <i id="likeBtn">🤍</i>
+          <i id="commentBtn">💬</i>
+          <i id="shareBtn">📤</i>
+        </div>
+        <div class="right">🔖</div>
+      </div>
+      <div class="caption">
+        <strong>joker.darkknight</strong> I want my phone call! 🃏 #darkknight #joker #whySoSerious
+      </div>
+    </div>
+
+    <div class="post-count" id="post-count">1/3</div>
+
+    <div class="comment-box" id="commentBox">
+      <textarea id="commentInput" rows="1" placeholder="Add a comment..."></textarea>
+      <button onclick="sendComment()">Send</button>
+    </div>
+
+    <div class="comment-section" id="commentSection">
+      <!-- Posted comments appear here -->
+    </div>
+
+    <div class="share-popup" id="sharePopup">
+      <div>📤 Share Post</div>
+      <button onclick="copyLink()">Copy Link</button>
+      <button>Send to DM</button>
+      <button onclick="closeShare()">Close</button>
+    </div>
+  </div>
+
+  <script>
+  const slides = document.getElementById("slides");
+  const dotsContainer = document.getElementById("dots");
+  const postCount = document.getElementById("post-count");
+  const total = slides.children.length;
+  const likeBtn = document.getElementById("likeBtn");
+
+  let index = 0;
+
+  function updateUI() {
+    slides.style.transform = `translateX(-${index * 100}%)`;
+    postCount.textContent = `${index + 1}/${total}`;
+    dotsContainer.innerHTML = "";
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement("span");
+      dot.className = "dot" + (i === index ? " active" : "");
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  function nextSlide() {
+    index = (index + 1) % total;
+    updateUI();
+  }
+
+  function prevSlide() {
+    index = (index - 1 + total) % total;
+    updateUI();
+  }
+likeBtn.addEventListener("click", () => {
+  if (likeBtn.classList.contains("liked")) {
+    likeBtn.classList.remove("liked");
+    likeBtn.textContent = "🤍";
+  } else {
+    likeBtn.classList.add("liked");
+    likeBtn.textContent = "❤️";
+
+    // Restart the animation (so it pops every time)
+    likeBtn.classList.remove("pop-animation");
+    void likeBtn.offsetWidth; // Trigger reflow
+    likeBtn.classList.add("pop-animation");
+  }
+});
+
+
+  // Follow toggle
+  const followBtn = document.getElementById("followBtn");
+  followBtn.addEventListener("click", () => {
+    if (followBtn.textContent === "Follow") {
+      followBtn.textContent = "Following";
+      followBtn.style.color = "#aaa";
+    } else {
+      followBtn.textContent = "Follow";
+      followBtn.style.color = "#0095f6";
+    }
+  });
+
+  // Comment box toggle
+  const commentBtn = document.getElementById("commentBtn");
+  const commentBox = document.getElementById("commentBox");
+  commentBtn.addEventListener("click", () => {
+    commentBox.style.display = commentBox.style.display === "flex" ? "none" : "flex";
+  });
+
+  // Send comment
+  function sendComment() {
+    const input = document.getElementById("commentInput");
+    const text = input.value.trim();
+    if (text) {
+      const section = document.getElementById("commentSection");
+      const newComment = document.createElement("div");
+      newComment.className = "comment";
+      newComment.innerHTML = `<strong>You:</strong> ${text}`;
+      section.appendChild(newComment);
+      input.value = "";
+    }
+  }
+
+  // Share Popup
+  const shareBtn = document.getElementById("shareBtn");
+  const sharePopup = document.getElementById("sharePopup");
+
+  shareBtn.addEventListener("click", () => {
+    sharePopup.style.display = "block";
+  });
+
+  function closeShare() {
+    sharePopup.style.display = "none";
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText("https://example.com/post123");
+    alert("Link copied!");
+  }
+
+  updateUI();
+</script>
+
+</body>
+</html>
