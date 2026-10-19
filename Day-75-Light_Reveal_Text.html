@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Light Reveal Text</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    .text {
+      font-size: 120px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), white 80px, transparent 150px);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .light {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.4), rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="text">Light</div>
+    <div class="light"></div>
+  </div>
+
+  <script>
+    const text = document.querySelector('.text');
+    const light = document.querySelector('.light');
+
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // Move the light circle
+      light.style.left = x + 'px';
+      light.style.top = y + 'px';
+
+      // Update CSS variables for text gradient
+      const textRect = text.getBoundingClientRect();
+      const offsetX = x - textRect.left;
+      const offsetY = y - textRect.top;
+
+      text.style.setProperty('--x',` ${offsetX}px`);
+      text.style.setProperty('--y',` ${offsetY}px`);
+    });
+  </script>
+</body>
+</html>
