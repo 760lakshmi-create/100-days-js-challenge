@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Travel The World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #3D342F, #A68A64, #F8E3B4);
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1300px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 120px;
+    }
+
+    .left-content {
+      max-width: 500px;
+    }
+
+    .left-content h1 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+    }
+
+    .left-content p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #f0f0f0;
+    }
+
+    .left-content button {
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #2a5298;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .left-content button:hover {
+      background-color: white;
+      transform: scale(1.05);
+    }
+
+    .carousel {
+      width: 300px;
+      height: 420px;
+      perspective: 1000px;
+      position: relative;
+    }
+
+    .carousel-inner {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 1s ease-in-out;
+    }
+
+    .carousel-item {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      backface-visibility: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .carousel-item::after {
+      content: attr(data-title);
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 15px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      color: #fff;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Cube faces */
+    .item-front  { transform: rotateY(   0deg) translateZ(150px); }
+    .item-right  { transform: rotateY(  90deg) translateZ(150px); }
+    .item-back   { transform: rotateY( 180deg) translateZ(150px); }
+    .item-left   { transform: rotateY( 270deg) translateZ(150px); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-content">
+      <h1>Let's Travel The World Together!</h1>
+      <p>
+        Our tours are designed to transport you to the heart of the world's most captivating destinations, 
+        creating memories that will last a lifetime. You can uncover the hidden gems, iconic landmarks, and 
+        unique cultural treasures that make each destination special.
+      </p>
+      <button>Explore Tours</button>
+    </div>
+
+    <div class="carousel">
+      <div class="carousel-inner" id="carouselInner">
+        <div class="carousel-item item-front" style="background-image: url(4.jpg);" data-title="Walking Tour in Florence"></div>
+        <div class="carousel-item item-right" style="background-image: url(1.jpg);" data-title="Eiffel Tower Tour"></div>
+        <div class="carousel-item item-back" style="background-image: url(2.jpg);" data-title="Tokyo Night Lights"></div>
+        <div class="carousel-item item-left" style="background-image: url(3.jpg);" data-title="New York City Walk"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const carousel = document.getElementById("carouselInner");
+    let angle = 0;
+    let index = 0;
+
+    function rotateCube() {
+      index = (index + 1) % 4;
+      angle = index * -90;
+      carousel.style.transform = `rotateY(${angle}deg)`;
+    }
+
+    setInterval(rotateCube, 2500);
+  </script>
+</body>
+</html>
