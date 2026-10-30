@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Futuristic Percentage Calculator</title>
+  <style>
+    /* Background animation */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 20% 20%, #6a11cb, #2575fc);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(#6a11cb, #2575fc, #ff6b6b, #6a11cb);
+      animation: rotateBG 15s linear infinite;
+      z-index: -1;
+      filter: blur(100px);
+    }
+
+    @keyframes rotateBG {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Glassmorphic container */
+    .container {
+      width: 90%;
+      max-width: 460px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      padding: 25px;
+      text-align: center;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      border-radius: 10px 10px 0 0;
+    }
+    .tab.active {
+      background: linear-gradient(45deg, #6a11cb, #2575fc);
+      color: #fff;
+    }
+    .tab:hover { opacity: 0.8; }
+
+    /* Form fields */
+    input {
+      width: 95%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    input::placeholder { color: #bbb; }
+
+    /* Result box */
+    .result-section {
+      margin-top: 20px;
+    }
+    .result-text {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    /* Circular Progress */
+    .progress {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(#2575fc var(--value, 0%), #333 var(--value, 0%));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto;
+      position: relative;
+    }
+    .progress::after {
+      content: attr(data-progress) "%";
+      position: absolute;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    /* Buttons */
+    .btns {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .btn {
+      flex: 1;
+      margin: 5px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .reset { background: rgba(255,255,255,0.2); color: #fff; }
+    .reset:hover { background: rgba(255,255,255,0.4); }
+    .copy { background: #ff6b6b; color: #fff; }
+    .copy:hover { background: #e14b4b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Percentage Calculator</h1>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('basic')">Basic %</div>
+      <div class="tab" onclick="switchTab('increase')">Increase/Decrease</div>
+      <div class="tab" onclick="switchTab('marks')">Marks %</div>
+    </div>
+
+    <!-- Forms -->
+    <div id="basic" class="form">
+      <input type="number" id="percent" placeholder="Enter Percentage (%)" oninput="calculate()">
+      <input type="number" id="number" placeholder="Enter Number" oninput="calculate()">
+    </div>
+
+    <div id="increase" class="form" style="display:none;">
+      <input type="number" id="original" placeholder="Original Value" oninput="calculate()">
+      <input type="number" id="change" placeholder="Increase/Decrease %" oninput="calculate()">
+    </div>
+
+    <div id="marks" class="form" style="display:none;">
+      <input type="number" id="obtained" placeholder="Obtained Marks" oninput="calculate()">
+      <input type="number" id="total" placeholder="Total Marks" oninput="calculate()">
+    </div>
+
+    <!-- Result -->
+    <div class="result-section">
+      <div class="result-text" id="result">Result will appear here</div>
+      <div class="progress" id="progress" style="--value:0" data-progress="0"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btns">
+      <button class="btn reset" onclick="resetForm()">Reset</button>
+      <button class="btn copy" onclick="copyResult()">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    let activeTab = "basic";
+
+    function switchTab(tab) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".form").forEach(f => f.style.display = "none");
+      document.getElementById(tab).style.display = "block";
+      event.target.classList.add("active");
+      activeTab = tab;
+      resetForm();
+    }
+
+    function calculate() {
+      let result = "";
+      let percentageValue = 0;
+
+      if (activeTab === "basic") {
+        const p = parseFloat(document.getElementById("percent").value);
+        const n = parseFloat(document.getElementById("number").value);
+        if (!isNaN(p) && !isNaN(n)) {
+          result = `${p}% of ${n} = ${(p/100 * n).toFixed(2)}`;
+          percentageValue = p;
+        }
+      } else if (activeTab === "increase") {
+        const o = parseFloat(document.getElementById("original").value);
+        const c = parseFloat(document.getElementById("change").value);
+        if (!isNaN(o) && !isNaN(c)) {
+          const inc = o + (o * c/100);
+          const dec = o - (o * c/100);
+          result =` Increase: ${inc.toFixed(2)} | Decrease: ${dec.toFixed(2)}`;
+          percentageValue = c;
+        }
+      } else if (activeTab === "marks") {
+        const ob = parseFloat(document.getElementById("obtained").value);
+        const tot = parseFloat(document.getElementById("total").value);
+        if (!isNaN(ob) && !isNaN(tot) && tot > 0) {
+          percentageValue = (ob/tot * 100).toFixed(2);
+          result = Percentage =` ${percentageValue}%`;
+        }
+      }
+
+      document.getElementById("result").innerText = result || "Result will appear here";
+      document.getElementById("progress").style.setProperty("--value", percentageValue+"%");
+      document.getElementById("progress").setAttribute("data-progress", percentageValue ? percentageValue : 0);
+    }
+
+    function resetForm() {
+      document.querySelectorAll("input").forEach(i => i.value = "");
+      document.getElementById("result").innerText = "Result will appear here";
+      document.getElementById("progress").style.setProperty("--value","0%");
+      document.getElementById("progress").setAttribute("data-progress", "0");
+    }
+
+    function copyResult() {
+      const text = document.getElementById("result").innerText;
+      if (text && text !== "Result will appear here") {
+        navigator.clipboard.writeText(text);
+        alert("Result copied!");
+      }
+    }
+  </script>
+</body>
+</html>
