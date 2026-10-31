@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Radial Menu with Icons</title>
+
+  <!-- ✅ Working Font Awesome 6 CSS CDN -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v6.4.2/css/all.css"
+    crossorigin="anonymous"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      background: #2c3e50;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .menu-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+
+    .center-button {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 50%;
+      border: 2px solid #00bcd4;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      font-size: 20px;
+    }
+
+    .center-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .menu-button {
+      width: 45px;
+      height: 45px;
+      background: #00bcd4;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      pointer-events: none;
+      font-size: 18px;
+    }
+
+    .menu-button.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(var(--angle)) translateX(100px) rotate(calc(-1 * var(--angle))) scale(1);
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="menu-container">
+  <div class="center-button" id="toggleBtn">
+    <i class="fas fa-plus"></i>
+  </div>
+
+  <!-- Radial Menu Buttons -->
+  <div class="menu-button" style="--angle: 0deg;"><i class="fas fa-home"></i></div>
+  <div class="menu-button" style="--angle: 45deg;"><i class="fas fa-info-circle"></i></div>
+  <div class="menu-button" style="--angle: 90deg;"><i class="fas fa-phone"></i></div>
+  <div class="menu-button" style="--angle: 135deg;"><i class="fas fa-shopping-bag"></i></div>
+  <div class="menu-button" style="--angle: 180deg;"><i class="fas fa-cog"></i></div>
+  <div class="menu-button" style="--angle: 225deg;"><i class="fas fa-blog"></i></div>
+  <div class="menu-button" style="--angle: 270deg;"><i class="fas fa-camera"></i></div>
+  <div class="menu-button" style="--angle: 315deg;"><i class="fas fa-envelope"></i></div>
+</div>
+
+<script>
+  const toggleBtn = document.getElementById("toggleBtn");
+  const buttons = document.querySelectorAll(".menu-button");
+  let open = false;
+
+  toggleBtn.addEventListener("click", () => {
+    open = !open;
+    if (open) {
+      buttons.forEach((btn, i) => {
+        setTimeout(() => {
+          btn.classList.add("show");
+        }, i * 100);
+      });
+    } else {
+      buttons.forEach((btn, i) => {
+        setTimeout(() => {
+          btn.classList.remove("show");
+        }, (buttons.length - i) * 100);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
