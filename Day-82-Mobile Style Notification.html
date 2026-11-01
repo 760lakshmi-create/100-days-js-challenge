@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mobile Style Notification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #00cec9;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .notification-container {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d3436;
+      color: white;
+      width: 90%;
+      max-width: 350px;
+      padding: 16px 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+
+    .notification-container.show {
+      top: 30px;
+      animation: slideIn 0.5s ease, pulse 0.4s ease-in-out;
+    }
+
+    .notification-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notification-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .notification-message {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .notification-close {
+      background: transparent;
+      color: white;
+      font-size: 22px;
+      border: none;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
+    @keyframes slideIn {
+      0% { transform: translateX(-50%) translateY(-100px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.03); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    .message-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2c3e50;
+      color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 2000;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .message-popup h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .message-popup p {
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    .message-popup.success h1 { color: #00b894; }
+    .message-popup.failed h1 { color: #d63031; }
+    .message-popup.info h1 { color: #3498db; }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1500;
+    }
+
+    .close-popup {
+      margin-top: 20px;
+      padding: 8px 16px;
+      border: none;
+      background: #00cec9;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <button onclick="showNotification('📬 Message Received', 'Tap to open your message')">Show Notification</button>
+
+  <!-- Notification -->
+  <div class="notification-container" id="mobileToast" onclick="openMessage()">
+    <div class="notification-content">
+      <div class="notification-title" id="toastTitle">Title</div>
+      <div class="notification-message" id="toastMsg">Message</div>
+    </div>
+    <button class="notification-close" onclick="hideNotification(event)">×</button>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="closePopup()"></div>
+
+  <!-- Message Popup -->
+  <div class="message-popup" id="messageBox">
+    <h1 id="msgTitle">Message</h1>
+    <p>This message was triggered by a notification click.</p>
+    <button class="close-popup" onclick="closePopup()">Close</button>
+  </div>
+
+  <script>
+    function showNotification(title, message) {
+      const toast = document.getElementById("mobileToast");
+      document.getElementById("toastTitle").innerText = title;
+      document.getElementById("toastMsg").innerText = message;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 5000);
+    }
+
+    function hideNotification(event) {
+      event.stopPropagation();
+      document.getElementById("mobileToast").classList.remove("show");
+    }
+
+    function openMessage() {
+      const types = ["success", "failed", "info"];
+      const messages = {
+        success: "✅ Operation Successful!",
+        failed: "❌ Operation Failed!",
+        info: "ℹ Here is some information."
+      };
+      const randomType = types[Math.floor(Math.random() * types.length)];
+
+      const msgBox = document.getElementById("messageBox");
+      const overlay = document.getElementById("overlay");
+
+      msgBox.className = "message-popup " + randomType;
+      document.getElementById("msgTitle").innerText = messages[randomType];
+
+      msgBox.style.display = "block";
+      overlay.style.display = "block";
+    }
+
+    function closePopup() {
+      document.getElementById("messageBox").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
