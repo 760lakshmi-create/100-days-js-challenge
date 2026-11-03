@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Range Filter</title>
+<style>
+  :root{
+    --bg:#f7f7f8; --card:#ffffff; --text:#1a1a1a; --text2:#555;
+    --text3:#999; --border:#e3e3e6; --muted:#ececee; --fill:#1a1a1a;
+    --accent:#2563eb; --radius:12px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#141416; --card:#1e1e22; --text:#f2f2f2; --text2:#c9c9cf;
+      --text3:#8a8a92; --border:#333338; --muted:#2a2a30; --fill:#f2f2f2;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:24px;width:100%;max-width:640px;
+    box-shadow:0 8px 30px rgba(0,0,0,.06);
+  }
+  button,input{font:inherit}
+  .head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .title{font-size:17px;font-weight:600}
+  .cur{display:flex;gap:4px;background:var(--muted);border-radius:6px;padding:2px}
+  .cur button{border:0;background:transparent;color:var(--text3);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;transition:all .15s}
+  .cur button.on{background:var(--card);color:var(--text);font-weight:600;box-shadow:0 0 0 1px var(--border)}
+  .valrow{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  .val{font-size:34px;font-weight:600;line-height:1.15;min-width:120px;font-variant-numeric:tabular-nums}
+  .count{margin-left:auto;font-size:12px;color:var(--text3);text-align:right;white-space:nowrap}
+  .count b{color:var(--text2)}
+  .trackwrap{position:relative;height:48px;margin-top:28px;cursor:pointer;touch-action:none}
+  .bubbles{position:absolute;inset:0 0 auto 0;height:22px;pointer-events:none}
+  .bub{
+    position:absolute;top:0;transform:translateX(-50%);
+    background:var(--fill);color:var(--card);font-size:12px;font-weight:600;
+    padding:2px 8px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;
+  }
+  .bub::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:4px solid transparent;border-top-color:var(--fill);
+  }
+  .bub.lower{top:24px}
+  .rail{position:absolute;left:0;right:0;top:22px;height:4px;border-radius:4px;background:var(--muted)}
+  .fillbar{position:absolute;top:22px;height:4px;border-radius:4px;background:var(--fill)}
+  .thumb{
+    position:absolute;top:24px;width:20px;height:20px;border-radius:8px;
+    background:var(--card);border:1.5px solid var(--fill);
+    transform:translate(-50%,-50%);cursor:grab;
+    box-shadow:0 1px 3px rgba(0,0,0,.18);touch-action:none;transition:scale .12s;
+  }
+  .thumb:active{cursor:grabbing;scale:1.12}
+  .thumb:focus-visible{outline:2px solid var(--fill);outline-offset:2px}
+  .ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-top:8px;font-variant-numeric:tabular-nums}
+  .histo{display:flex;align-items:flex-end;gap:2px;height:44px;margin-top:16px}
+  .bar{flex:1;border-radius:2px 2px 0 0;background:color-mix(in srgb,var(--accent) 18%,transparent);transition:background .15s,height .25s}
+  .bar.in{background:var(--accent);opacity:.85}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{
+    border:1px solid var(--border);background:transparent;color:var(--text2);
+    padding:5px 12px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .15s;
+  }
+  .chip:hover{color:var(--text);border-color:var(--text)}
+  .chip.on{background:var(--fill);color:var(--card);border-color:var(--fill)}
+  .inputs{display:flex;align-items:center;gap:8px;margin-top:16px}
+  .field{
+    flex:1;display:flex;align-items:center;gap:8px;
+    border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:var(--card);
+  }
+  .field:focus-within{border-color:var(--text)}
+  .field span{font-size:13px;color:var(--text3)}
+  .field input{width:100%;border:0;background:transparent;outline:0;font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+  .dash{color:var(--text3);flex:none}
+  .reset{border:0;background:transparent;color:var(--text3);font-size:13px;cursor:pointer;padding:8px 4px;border-radius:6px}
+  .reset:hover{color:var(--text)}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="card" id="prs">
+  <div class="head">
+    <div class="title">Filter by price</div>
+    <div class="cur" id="prsCur"></div>
+  </div>
+
+  <div class="valrow">
+    <div class="val" id="prsVal">—</div>
+    <div class="count" id="prsCount"></div>
+  </div>
+
+  <div class="trackwrap" id="prsWrap">
+    <div class="bubbles">
+      <div class="bub" id="bubA"></div>
+      <div class="bub" id="bubB"></div>
+    </div>
+    <div class="rail"></div>
+    <div class="fillbar" id="prsFill"></div>
+    <div class="thumb" id="thumbA" tabindex="0" role="slider" aria-label="Minimum price"></div>
+    <div class="thumb" id="thumbB" tabindex="0" role="slider" aria-label="Maximum price"></div>
+  </div>
+  <div class="ticks"><span id="tickMin"></span><span id="tickMax"></span></div>
+
+  <div class="histo" id="prsHisto"></div>
+  <div class="presets" id="prsPresets"></div>
+
+  <div class="inputs">
+    <label class="field"><span id="curA">₹</span><input id="inpA" inputmode="numeric" aria-label="Minimum price"></label>
+    <span class="dash">–</span>
+    <label class="field"><span id="curB">₹</span><input id="inpB" inputmode="numeric" aria-label="Maximum price"></label>
+    <button class="reset" id="prsReset" type="button">Reset</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const MIN=0, MAX=100000, STEP=500;
+  const ITEMS=[1200,2500,3800,5200,6500,7800,8900,10500,12800,14200,16500,18500,
+               21500,24000,26800,29500,33000,36000,39800,43000,46500,50000,54500,
+               59000,64000,70000,76500,83000,91000,97500].map(p=>({p}));
+  const CURS=[{s:"₹",r:1},{s:"$",r:0.012},{s:"€",r:0.011}];
+  let cur=0, lo=5000, hi=60000;
+  const $=id=>document.getElementById(id);
+  const wrap=$("prsWrap"),fillEl=$("prsFill"),tA=$("thumbA"),tB=$("thumbB"),bA=$("bubA"),bB=$("bubB");
+  const fmt=v=>CURS[cur].s+Math.round(v*CURS[cur].r).toLocaleString("en-IN");
+  const conv=v=>Math.round(v*CURS[cur].r);
+  const snap=v=>Math.round(v/STEP)*STEP;
+
+  // currency toggle
+  CURS.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.textContent=c.s; b.className=i===cur?"on":"";
+    b.onclick=()=>{cur=i;
+      [...$("prsCur").children].forEach((x,j)=>x.classList.toggle("on",j===i));
+      $("curA").textContent=c.s; $("curB").textContent=c.s; render();
+    };
+    $("prsCur").appendChild(b);
+  });
+
+  // histogram: 16 bins
+  const BINS=16, binW=(MAX-MIN)/BINS, counts=Array(BINS).fill(0);
+  ITEMS.forEach(it=>counts[Math.min(BINS-1,Math.floor((it.p-MIN)/binW))]++);
+  const maxC=Math.max(...counts);
+  counts.forEach(n=>{
+    const d=document.createElement("div");
+    d.className="bar"; d.style.height=(6+38*n/maxC)+"px";
+    $("prsHisto").appendChild(d);
+  });
+
+  const presets=[["Under ₹10k",0,10000],["₹10k–30k",10000,30000],
+                 ["₹30k–60k",30000,60000],["₹60k+",60000,MAX]];
+  presets.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=p[0]; b.dataset.i=i;
+    b.onclick=()=>{lo=p[1]; hi=p[2]; render();};
+    $("prsPresets").appendChild(b);
+  });
+
+  function xOf(v){
+    const w=wrap.clientWidth;
+    return (v-MIN)/(MAX-MIN)*w;
+  }
+  function vOf(clientX){
+    const r=wrap.getBoundingClientRect();
+    const t=Math.min(1,Math.max(0,(clientX-r.left)/r.width));
+    return snap(MIN+t*(MAX-MIN));
+  }
+  function clampPair(){
+    if(lo>hi-STEP){const m=(lo+hi)/2; lo=snap(m-STEP/2); hi=snap(m+STEP/2);}
+    lo=Math.max(MIN,Math.min(lo,MAX));
+    hi=Math.max(MIN,Math.min(hi,MAX));
+  }
+
+  function render(){
+    clampPair();
+    const xLo=xOf(lo), xHi=xOf(hi);
+    tA.style.left=xLo+"px"; tB.style.left=xHi+"px";
+    fillEl.style.left=xLo+"px"; fillEl.style.width=Math.max(0,xHi-xLo)+"px";
+    bA.textContent=fmt(lo); bB.textContent=fmt(hi);
+    bA.style.left=xLo+"px"; bB.style.left=xHi+"px";
+    const overlap=Math.abs(xHi-xLo)<72;
+    bA.classList.toggle("lower",overlap);
+    $("prsVal").textContent=fmt(lo)+" – "+fmt(hi);
+    $("tickMin").textContent=fmt(MIN); $("tickMax").textContent=fmt(MAX);
+    const inR=ITEMS.filter(it=>it.p>=lo&&it.p<=hi).length;
+    $("prsCount").innerHTML="<b>"+inR+"</b> of "+ITEMS.length+" items in range";
+    [...$("prsHisto").children].forEach((bar,i)=>{
+      const binLo=MIN+i*binW;
+      const pct=Math.min(1,Math.max(0,(hi-binLo)/binW))-Math.max(0,(lo-binLo)/binW);
+      bar.classList.toggle("in",pct>0.15);
+    });
+    [...$("prsPresets").children].forEach((c,i)=>{
+      c.classList.toggle("on",presets[i][1]===lo&&presets[i][2]===hi);
+    });
+    if(document.activeElement!==$("inpA")) $("inpA").value=conv(lo);
+    if(document.activeElement!==$("inpB")) $("inpB").value=conv(hi);
+    tA.setAttribute("aria-valuemin",MIN); tA.setAttribute("aria-valuemax",hi); tA.setAttribute("aria-valuenow",lo);
+    tB.setAttribute("aria-valuemin",lo); tB.setAttribute("aria-valuemax",MAX); tB.setAttribute("aria-valuenow",hi);
+  }
+
+  function startDrag(e,isLo){
+    e.preventDefault();
+    const move=ev=>{
+      const v=vOf(ev.clientX);
+      if(isLo) lo=Math.min(v,hi-STEP);
+      else     hi=Math.max(v,lo+STEP);
+      lo=snap(lo); hi=snap(hi); render();
+    };
+    const up=()=>{
+      window.removeEventListener("pointermove",move);
+      window.removeEventListener("pointerup",up);
+    };
+    window.addEventListener("pointermove",move);
+    window.addEventListener("pointerup",up);
+  }
+  tA.addEventListener("pointerdown",e=>startDrag(e,true));
+  tB.addEventListener("pointerdown",e=>startDrag(e,false));
+
+  wrap.addEventListener("pointerdown",e=>{
+    if(!["trackwrap","rail","fillbar"].includes(e.target.className)) return;
+    const v=vOf(e.clientX);
+    if(Math.abs(v-lo)<Math.abs(v-hi)) lo=Math.min(v,hi-STEP);
+    else hi=Math.max(v,lo+STEP);
+    lo=snap(lo); hi=snap(hi); render();
+  });
+
+  [[tA,true],[tB,false]].forEach(([t,isLo])=>{
+    t.addEventListener("keydown",e=>{
+      const d=e.key==="ArrowRight"||e.key==="ArrowUp"?STEP
+             :e.key==="ArrowLeft"||e.key==="ArrowDown"?-STEP:0;
+      if(!d) return; e.preventDefault();
+      if(isLo) lo=snap(Math.max(MIN,Math.min(MAX,lo+d)));
+      else     hi=snap(Math.max(MIN,Math.min(MAX,hi+d)));
+      render();
+    });
+  });
+
+  function bindInp(el,isLo){
+    el.addEventListener("change",()=>{
+      let v=parseInt(el.value.replace(/[^\d]/g,""),10);
+      if(isNaN(v)) v=isLo?lo:hi;
+      v=snap(Math.round(v/CURS[cur].r));
+      if(isLo) lo=Math.min(v,hi-STEP);
+      else     hi=Math.max(v,lo+STEP);
+      render();
+    });
+  }
+  bindInp($("inpA"),true); bindInp($("inpB"),false);
+
+  $("prsReset").onclick=()=>{lo=MIN; hi=MAX; render();};
+  new ResizeObserver(render).observe(wrap);
+  render();
+})();
+</script>
+</body>
+</html>
