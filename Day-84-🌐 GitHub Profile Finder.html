@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub Profile Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --main-bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --text: #fff;
+      --accent: #00ffd5;
+    }
+
+    body.light {
+      --main-bg: linear-gradient(135deg, #f8f9fa, #e0e0e0);
+      --card-bg: rgba(0, 0, 0, 0.05);
+      --text: #111;
+      --accent: #007bff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--main-bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding: 40px 20px;
+      transition: 0.4s ease;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+      font-size: 2.2rem;
+    }
+
+    .toggle-theme {
+      display: block;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--accent);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-box button {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .search-box button:hover {
+      opacity: 0.85;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      margin-bottom: 10px;
+      object-fit: cover;
+    }
+
+    .card h2 {
+      margin: 10px 0 5px;
+    }
+
+    .card p {
+      font-size: 15px;
+      margin: 4px 0;
+    }
+
+    .card a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .card a:hover {
+      text-decoration: underline;
+    }
+
+    .save-btn {
+      margin-top: 15px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .save-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    #favorites {
+      margin-top: 35px;
+    }
+
+    #favorites h3 {
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .favorite-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .favorite-user img {
+      width: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+    }
+
+    .favorite-user a {
+      color: var(--accent);
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .search-box {
+        flex-direction: column;
+      }
+
+      .search-box input,
+      .search-box button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌐 GitHub Profile Finder</h1>
+    <div class="toggle-theme" onclick="toggleTheme()">🌗 Toggle Dark/Light Mode</div>
+
+    <div class="search-box">
+      <input type="text" id="username" placeholder="Enter GitHub username" />
+      <button onclick="getUser()">Search</button>
+    </div>
+
+    <div id="profileCard"></div>
+
+    <div id="favorites">
+      <h3>⭐ Favorite Profiles</h3>
+      <div id="favoritesList"></div>
+    </div>
+  </div>
+
+  <script>
+    const profileCard = document.getElementById('profileCard');
+    const favoritesList = document.getElementById('favoritesList');
+
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    }
+
+    function loadTheme() {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') document.body.classList.add('light');
+    }
+
+    function getUser() {
+      const username = document.getElementById('username').value.trim();
+      if (!username) return alert("Enter a valid GitHub username");
+
+      profileCard.innerHTML = '';
+      fetch(`https://api.github.com/users/${username}`)
+        .then(res => {
+          if (!res.ok) throw new Error("User not found");
+          return res.json();
+        })
+        .then(user => {
+          profileCard.innerHTML = `
+            <div class="card">
+              <img src="${user.avatar_url}" alt="Avatar" />
+              <h2>${user.name || user.login}</h2>
+              <p>${user.bio || 'No bio available'}</p>
+              <p>👥 ${user.followers} Followers | ${user.following} Following</p>
+              <p>📦 ${user.public_repos} Public Repos</p>
+              <a href="${user.html_url}" target="_blank">View GitHub 🔗</a><br/>
+              <button class="save-btn" onclick='saveFavorite(${JSON.stringify(user)})'>⭐ Save to Favorites</button>
+            </div>
+          `;
+        })
+        .catch(err => {
+          profileCard.innerHTML = <p style="color:red;">${err.message}</p>;
+        });
+    }
+
+    function saveFavorite(user) {
+      let favs = JSON.parse(localStorage.getItem('favorites')) || [];
+      if (favs.some(u => u.id === user.id)) return alert("Already in favorites!");
+      favs.push({ id: user.id, avatar: user.avatar_url, name: user.login, url: user.html_url });
+      localStorage.setItem('favorites', JSON.stringify(favs));
+      displayFavorites();
+    }
+
+    function displayFavorites() {
+      let favs = JSON.parse(localStorage.getItem('favorites')) || [];
+      favoritesList.innerHTML = favs.map(user => `
+        <div class="favorite-user">
+          <img src="${user.avatar}" />
+          <a href="${user.url}" target="_blank">${user.name}</a>
+        </div>
+      `).join('');
+    }
+
+    loadTheme();
+    displayFavorites();
+  </script>
+</body>
+</html>
