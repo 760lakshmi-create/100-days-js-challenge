@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Popup Box Designer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #121212, #1f1f1f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .popup-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      color: #fff;
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(142, 45, 226, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .popup-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(142, 45, 226, 0.8);
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .popup-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+      position: relative;
+      animation: popupIn 0.4s ease forwards;
+      backdrop-filter: blur(12px);
+    }
+
+    @keyframes popupIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .popup-box h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #f0f0f0;
+    }
+
+    .popup-box p {
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #ff4f4f;
+    }
+
+    @media (max-width: 500px) {
+      .popup-box {
+        padding: 20px;
+      }
+      .popup-box h2 {
+        font-size: 20px;
+      }
+      .popup-box p {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="popup-btn" onclick="openPopup()">💬 Show Popup</button>
+
+  <div class="popup-overlay" id="popup">
+    <div class="popup-box">
+      <div class="close-btn" onclick="closePopup()">&times;</div>
+      <h2>✨ Welcome to Popup!</h2>
+      <p>This is a beautifully animated and professional popup box using pure HTML, CSS, and JavaScript. You can use this to show alerts, notifications, forms, or messages in a stylish way.</p>
+    </div>
+  </div>
+
+  <script>
+    const popup = document.getElementById("popup");
+
+    function openPopup() {
+      popup.style.display = "flex";
+    }
+
+    function closePopup() {
+      popup.style.display = "none";
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === popup) {
+        closePopup();
+      }
+    });
+  </script>
+
+</body>
+</html>
