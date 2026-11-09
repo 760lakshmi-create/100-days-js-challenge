@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Stylish Pagination</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }body {
+  background: linear-gradient(135deg, #121212, #2c3e50);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background 0.3s;
+}
+
+.pagination-container {
+  background: #1e1e1e;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  position: relative;
+}
+
+.pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.page-btn {
+  background: #333;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.page-btn.active {
+  background: #27ae60;
+}
+
+.page-btn:hover {
+  background: #555;
+}
+
+.nav-btns {
+  margin: 1rem 0;
+}
+
+.nav-btns button,
+#goto-btn {
+  margin: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: #8e44ad;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-btns button:hover,
+#goto-btn:hover {
+  background: #9b59b6;
+}
+
+#goto-page {
+  width: 80px;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: none;
+  margin-left: 1rem;
+}
+
+.content-box {
+    
+  background: #2c3e50;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+  min-height: 100px;
+  position: relative;
+  animation: fade 0.5s ease-in-out;
+}
+
+@keyframes fade {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.spinner {
+  display: none;
+  margin-top: 1rem;
+}
+
+.dark-light-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.dark-light-toggle button {
+  background: #1a515f;
+  color: #060a10;
+  padding: 0.3rem 0.7rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 500px) {
+  .page-btn,
+  .nav-btns button,
+  #goto-btn {
+    padding: 0.3rem 0.6rem;
+  }
+  #goto-page {
+    width: 60px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="pagination-container">
+    <div class="dark-light-toggle">
+      <button id="toggle-mode">🌙</button>
+    </div><h2>🔢 Stylish Pagination</h2>
+<div class="nav-btns">
+  <button onclick="firstPage()">⏮ First</button>
+  <button onclick="prevPage()">⬅ Prev</button>
+  <button onclick="nextPage()">Next ➡</button>
+  <button onclick="lastPage()">Last ⏭</button>
+</div>
+
+<div class="pages" id="pagination"></div>
+
+<div>
+  <input type="number" id="goto-page" placeholder="Page #" />
+  <button id="goto-btn" onclick="goToPage()">Go 🔍</button>
+</div>
+
+<div class="spinner" id="spinner">⏳ Loading...</div>
+<div class="content-box" id="content" >Loading content...</div>
+
+  </div>  <script>
+    const totalPages = 15;
+    let currentPage = 1;
+
+    const contentData = Array.from({length: totalPages}, (_, i) => `📃 Contact Page ${i + 1} - Name: Person ${i + 1}, Email: person${i + 1}@mail.com`);
+
+    const contentBox = document.getElementById('content');
+    const pagination = document.getElementById('pagination');
+    const spinner = document.getElementById('spinner');
+
+    function updatePagination() {
+      pagination.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.classList.add('page-btn');
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => goTo(i);
+        pagination.appendChild(btn);
+      }
+    }
+
+    function showContent() {
+      spinner.style.display = 'block';
+      contentBox.style.opacity = 0.4;
+      setTimeout(() => {
+        contentBox.innerHTML = contentData[currentPage - 1];
+        spinner.style.display = 'none';
+        contentBox.style.opacity = 1 ;
+        color = black;
+      }, 500);
+    }
+
+    function goTo(page) {
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        updatePagination();
+        showContent();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) goTo(currentPage - 1);
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) goTo(currentPage + 1);
+    }
+
+    function firstPage() {
+      goTo(1);
+    }
+
+    function lastPage() {
+      goTo(totalPages);
+    }
+
+    function goToPage() {
+      const page = parseInt(document.getElementById('goto-page').value);
+      if (!isNaN(page)) goTo(page);
+    }
+
+    // Dark/Light mode toggle
+    const toggleBtn = document.getElementById('toggle-mode');
+    toggleBtn.onclick = () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      document.body.style.background = isLight ? '#f0f0f0' : 'linear-gradient(135deg, #121212, #2c3e50)';
+      toggleBtn.textContent = isLight ? '🌞' : '🌙';
+      contentBox.style.background = isLight ? '#fff' : '#2c3e50';
+    };
+
+    // Initial
+    updatePagination();
+    showContent();
+  </script></body>
+</html>
