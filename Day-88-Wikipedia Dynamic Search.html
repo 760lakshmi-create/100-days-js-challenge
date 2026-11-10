@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wikipedia Dynamic Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
+      color: #333;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    .search-container {
+      position: relative;
+      width: 100%; max-width: 600px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      outline: none;
+      transition: box-shadow 0.3s;
+    }
+    .search-container input:focus {
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+    }
+    .results {
+      width: 100%; max-width: 600px;
+      margin-top: 1.5rem;
+    }
+    .result {
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .result a {
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .result p {
+      margin: 8px 0 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); display: block; }
+    }
+    .spinner {
+      margin-top: 1rem;
+      border: 4px solid rgba(0,0,0,0.1);
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); } 100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 500px) {
+      .search-container input { font-size: 0.9rem; padding: 12px 16px; }
+      .result a { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <input id="searchInput" type="text" placeholder="Search Wikipedia..." />
+  </div>
+  <div class="spinner" id="spinner"></div>
+  <div class="results" id="results"></div>
+
+  <script>
+    const input = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    const spinner = document.getElementById('spinner');
+    let debounceTimer;
+
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(searchWiki, 500);
+    });
+
+    async function searchWiki() {
+      const query = input.value.trim();
+      resultsDiv.innerHTML = '';
+      if (!query) return;
+
+      spinner.style.display = 'block';
+
+      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        spinner.style.display = 'none';
+
+        data.query.search.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'result';
+          div.innerHTML = `
+            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.title)}" target="_blank">${item.title}</a>
+            <p>${item.snippet}...</p>
+          `;
+          resultsDiv.appendChild(div);
+          div.style.display = 'block';
+        });
+      } catch (e) {
+        spinner.style.display = 'none';
+        resultsDiv.innerHTML = '<p style="color:red;">Error fetching results</p>';
+      }
+    }
+  </script>
+</body>
+</html>
