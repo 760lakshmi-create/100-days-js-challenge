@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spy Number Checker</title>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 25px;
+        border-radius: 15px;
+        width: 350px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h1 {
+        font-size: 26px;
+        margin-bottom: 15px;
+        color: #ffd700;
+    }
+
+    input {
+        width: 90%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    button {
+        background: #ffd700;
+        color: #333;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    button:hover {
+        background: #ffb700;
+        transform: scale(1.05);
+    }
+
+    .result {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .spy {
+        background: rgba(0, 255, 0, 0.2);
+        color: #00ff88;
+    }
+
+    .not-spy {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ff4b4b;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔍 Spy Number Checker</h1>
+    <input type="number" id="number" placeholder="Enter a number">
+    <br>
+    <button onclick="checkSpyNumber()">Check Number</button>
+    <div id="output" class="result"></div>
+</div>
+
+<script>
+function checkSpyNumber() {
+    let num = document.getElementById("number").value;
+    let output = document.getElementById("output");
+
+    if (num === "" || num <= 0) {
+        output.innerHTML = "⚠ Please enter a valid number!";
+        output.className = "result not-spy";
+        return;
+    }
+
+    let sum = 0, product = 1;
+    for (let digit of num) {
+        let d = parseInt(digit);
+        sum += d;
+        product *= d;
+    }
+
+    if (sum === product) {
+        output.innerHTML =` ✅ ${num} is a Spy Number!<br>(Sum: ${sum}, Product: ${product})`;
+        output.className = "result spy";
+    } else {
+        output.innerHTML = `❌ ${num} is NOT a Spy Number.<br>(Sum: ${sum}, Product: ${product})`;
+        output.className = "result not-spy";
+    }
+}
+</script>
+
+</body>
+</html>
