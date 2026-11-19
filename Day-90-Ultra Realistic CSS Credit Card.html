@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ultra Realistic CSS Credit Card (Final)</title>
+<style>
+:root{
+  --card-w:420px;
+  --card-h:260px;
+  --radius:18px;
+  --gold:#d4af37;
+}
+*{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg,#fdfbfb89,#db3580ae,#ce015dcf,#fdfbfb);
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:#333;
+    padding:28px;
+  }
+
+/* Wrap */
+.wrap{
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+/* Card */
+.card-viewport{
+  width:var(--card-w);
+  height:var(--card-h);
+  perspective:1400px;
+}
+.card{
+  width:100%; height:100%;
+  border-radius:var(--radius);
+  transform-style:preserve-3d;
+  transition: transform .45s ease;
+  position:relative;
+  user-select:none;
+}
+.face{
+  position:absolute; inset:0;
+  border-radius:var(--radius);
+  backface-visibility:hidden;
+  overflow:hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,.5);
+}
+
+/* --- FRONT --- */
+.front{
+  background: linear-gradient(135deg,#0f0f0f 0%,#1a1a1a 40%,#000 100%);
+  background-size:200% 200%;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  color:#f5f5f5;
+  position:relative;
+}
+.front::before{
+  content:"";
+  position:absolute; inset:0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.015) 2px,
+    transparent 4px
+  );
+  mix-blend-mode:overlay;
+}
+.front::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(120deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 60%);
+  animation: shineMove 8s linear infinite;
+}
+@keyframes shineMove{
+  0%{transform:translateX(-100%) rotate(25deg);}
+  50%{transform:translateX(50%) rotate(25deg);}
+  100%{transform:translateX(120%) rotate(25deg);}
+}
+
+/* Chip */
+.chip{
+  width:70px; height:48px; border-radius:8px;
+  background: linear-gradient(180deg,#c7c7c7,#7a7a7a);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,.3), inset 0 -2px 4px rgba(0,0,0,.7);
+}
+
+/* Card Number */
+.number{
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:3px;
+  color:#e0e0e0;
+  text-shadow:0 1px 2px rgba(0,0,0,.8);
+}
+
+/* Holder & Brand */
+.holder{ 
+  font-size:14px; 
+  font-weight:600; 
+  color:#ccc;
+}
+.brand{
+  font-weight:900;
+  color:var(--gold);
+  font-size:24px;
+  text-shadow:0 2px 4px rgba(0,0,0,.7), 0 -1px 1px rgba(255,255,255,.2);
+}
+
+/* --- BACK (perfect top aligned) --- */
+.back{
+  background: linear-gradient(135deg,#0d0d0d,#1a1a1a,#000);
+  transform:rotateY(180deg);
+  padding:20px;
+  color:#eee;
+  position:absolute;
+  inset:0;
+  border-radius:var(--radius);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:20px;
+  overflow:hidden;
+  box-shadow: inset 0 0 60px rgba(255,255,255,.08),
+              inset 0 0 120px rgba(255,255,255,.05);
+}
+
+/* Magnetic stripe */
+.magstripe{
+  height:54px;
+  background: linear-gradient(90deg,#050505,#222,#0d0d0d);
+  border-radius:4px;
+  box-shadow: inset 0 2px 6px rgba(255,255,255,.15),
+              inset 0 -2px 6px rgba(0,0,0,.7);
+}
+
+/* Signature + CVV in one row */
+.sig{
+flex:1;
+  height:40px;
+  background: repeating-linear-gradient(
+    0deg,
+    #fff,
+    #fff 6px,
+    #f5f5f5 6px,
+    #f5f5f5 12px
+  );
+  border-radius:6px;
+  padding:6px 10px;
+  color:#333;
+  font-family:"Courier New", monospace;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.25);
+  border:1px solid rgba(0,0,0,.15);
+
+}
+
+/* CVV box */
+.cvv{
+  width:80px;
+  height:38px;
+  margin-left:10px;
+  background: linear-gradient(180deg,#fafafa,#e0e0e0);
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  letter-spacing:2px;
+  color:#111;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.8),
+              0 2px 6px rgba(0,0,0,.5);
+  border:1px solid rgba(0,0,0,.25);
+}
+
+.holo{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background: conic-gradient(
+    from 0deg,
+    #ff0040,
+    #ff7a00,
+    #ffe600,
+    #00ff85,
+    #00c3ff,
+    #8a2eff,
+    #ff00d4,
+    #ff0040
+  );
+  background-size:200% 200%;
+  animation:holo 6s linear infinite;
+  opacity:.35;
+  mix-blend-mode:screen;
+}
+
+@keyframes holo{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+
+/* Brand text (optional, top aligned not bottom) */
+.back-brand{
+  margin-top:10px;
+  text-align:right;
+  font-size:18px;
+  font-weight:700;
+  color:var(--gold);
+  text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+
+
+  /* shadow */
+  .card-shadow{
+    position:absolute;
+    left:8px; right:8px; bottom:-22px;
+    height:40px;
+    filter:blur(18px);
+    border-radius:50%;
+    background: linear-gradient(90deg, rgba(0,0,0,.25), rgba(0,0,0,.1));
+    opacity:.5;
+  }
+
+  /* Controls → glass effect */
+  .controls{
+    width:360px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,.25);
+    padding:18px;
+    border-radius:16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  }
+  .controls input, .controls select, .controls button{
+    padding:12px 14px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    background: rgba(255,255,255,0.8);
+    color:#222;
+    font-size:14px;
+  }
+  .controls input::placeholder{ color: rgba(80,80,80,.5); }
+  button{
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Card -->
+    <div class="card-viewport">
+      <div class="card" id="card">
+        <div class="face front" aria-hidden="false">
+          <div class="front-top">
+            <div class="chip" aria-hidden="true">
+              <div class="layer"></div>
+              <div class="inner"></div>
+            </div>
+            <div class="brand">VISA</div>
+          </div>
+
+          <div style="position:relative; z-index:3;">
+            <div class="number" id="display-number" data-text="#### #### #### ####">#### #### #### ####</div>
+            <div style="height:8px"></div>
+            <div class="front-bottom">
+              <div style="min-width:170px">
+                <div class="label">Card Holder</div>
+                <div class="holder" id="display-name">FULL NAME</div>
+              </div>
+              <div style="min-width:70px; text-align:right">
+                <div class="label">Expires</div>
+                <div class="holder" id="display-expiry">MM/YY</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="holo" aria-hidden="true"></div>
+          <div class="card-shadow" aria-hidden="true"></div>
+        </div>
+
+        <div class="face back" aria-hidden="true">
+          <div class="magstripe" role="img" aria-label="magnetic stripe"></div>
+          <div class="sign-cvv">
+            <div class="sig"><span class="note">AUTHORIZED SIGNATURE</span> <span style="opacity:.2">••••</span></div>
+            <div class="cvv" id="display-cvv"><span class="cvv-text">###</span><div class="lines" aria-hidden="true"></div></div>
+          </div>
+          <div class="back-brand">VISA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <input id="card-number" inputmode="numeric" maxlength="19" placeholder="Card Number (1234 5678 9012 3456)" />
+      <input id="card-name" maxlength="30" placeholder="Card Holder Name" />
+      <div class="row-flex">
+        <select id="exp-month" aria-label="Expiry month">
+          <option value="">Month</option>
+          <option>01</option><option>02</option><option>03</option><option>04</option>
+          <option>05</option><option>06</option><option>07</option><option>08</option>
+          <option>09</option><option>10</option><option>11</option><option>12</option>
+        </select>
+        <select id="exp-year" aria-label="Expiry year">
+          <option value="">Year</option>
+          <option>2025</option><option>2026</option><option>2027</option>
+          <option>2028</option><option>2029</option><option>2030</option>
+        </select>
+      </div>
+      <input id="card-cvv" inputmode="numeric" maxlength="4" placeholder="CVV" />
+      <button id="submit-btn">Submit (Demo)</button>
+    </div>
+  </div>
+
+<script>
+  // elements
+  const card = document.getElementById('card');
+  const numberIn = document.getElementById('card-number');
+  const nameIn = document.getElementById('card-name');
+  const monthIn = document.getElementById('exp-month');
+  const yearIn = document.getElementById('exp-year');
+  const cvvIn = document.getElementById('card-cvv');
+
+  const displayNumber = document.getElementById('display-number');
+  const displayName = document.getElementById('display-name');
+  const displayExpiry = document.getElementById('display-expiry');
+  const displayCvv = document.getElementById('display-cvv');
+
+  // number formatting and embossed data-text update
+  numberIn.addEventListener('input', e=>{
+    let v = e.target.value.replace(/\D/g,'').slice(0,16);
+    let groups = v.match(/.{1,4}/g);
+    e.target.value = groups ? groups.join(' ') : v;
+    displayNumber.textContent = e.target.value || '#### #### #### ####';
+    displayNumber.setAttribute('data-text', displayNumber.textContent);
+  });
+
+  // name
+  nameIn.addEventListener('input', e=>{
+    displayName.textContent = e.target.value ? e.target.value.toUpperCase() : 'FULL NAME';
+  });
+
+  // expiry
+  function updateExpiry(){
+    let m = monthIn.value;
+    let y = yearIn.value ? yearIn.value.slice(2) : '';
+    displayExpiry.textContent = (m && y) ? `${m}/${y}` : 'MM/YY';
+  }
+  monthIn.addEventListener('change', updateExpiry);
+  yearIn.addEventListener('change', updateExpiry);
+
+  // CVV and flip
+  cvvIn.addEventListener('focus', ()=> {
+    card.classList.add('flipped');
+  });
+  cvvIn.addEventListener('blur', ()=> {
+    card.classList.remove('flipped');
+  });
+  cvvIn.addEventListener('input', e=>{
+    let v = e.target.value.replace(/\D/g,'').slice(0,4);
+    e.target.value = v;
+    displayCvv.querySelector('.cvv-text').textContent = v || '###';
+  });
+
+  // 3D tilt
+  const viewport = document.querySelector('.card-viewport');
+  viewport.addEventListener('mousemove', (ev)=>{
+    const rect = viewport.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    const cx = rect.width/2, cy = rect.height/2;
+    const rx = ((y - cy)/cy) * 8; // rotateX deg
+    const ry = ((x - cx)/cx) * 12; // rotateY deg
+
+    if(card.classList.contains('flipped')){
+      // combine flip and tilt
+      card.style.transform = `rotateY(180deg) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    } else {
+      card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    }
+  });
+
+  viewport.addEventListener('mouseleave', ()=>{
+    if(card.classList.contains('flipped')){
+      card.style.transform = `rotateY(180deg)`;
+    } else {
+      card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    }
+  });
+
+  // visual feedback for dragging pointer
+  viewport.addEventListener('mousedown', ()=> card.classList.add('grabbing'));
+  window.addEventListener('mouseup', ()=> card.classList.remove('grabbing'));
+
+  // demo submit
+  document.getElementById('submit-btn').addEventListener('click', (e)=>{
+    e.preventDefault();
+    alert('Demo submit — data not sent anywhere.');
+  });
+</script>
+</body>
+</html>
