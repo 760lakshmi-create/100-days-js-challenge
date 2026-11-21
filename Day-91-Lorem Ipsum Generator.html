@@ -1,0 +1,211 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple — Lorem Ipsum Generator</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa6b2; --accent:#7c5cff; --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px; background:linear-gradient(10deg,#441c3a,#eaeaed); color:#e6eef6}
+    .wrap{width:100%; max-width:920px}
+    header{display:flex; align-items:center; gap:16px; margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .controls{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px}
+    .control{background:var(--card); padding:12px; border-radius:12px}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    input[type=number], select{width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:inherit}
+    .actions{display:flex; gap:8px; margin-bottom:12px}
+    button{padding:10px 14px; border-radius:10px; border:0; cursor:pointer; font-weight:600}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),#4cc0ff); color:#072033}
+    .btn-ghost{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted)}
+    .output{background:var(--glass); padding:18px; border-radius:14px; min-height:140px; overflow:auto; border:1px solid rgba(255,255,255,0.02)}
+    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px}
+    .small{font-size:13px;color:var(--muted)}
+    .chip{display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.02); font-size:13px}
+    .footer{margin-top:12px; display:flex; justify-content:space-between; gap:12px; align-items:center}
+    .flex{display:flex; gap:8px}
+    .toggle{display:flex; gap:6px; align-items:center}
+    input[type=checkbox]{width:16px;height:16px}
+    /* Responsive */
+    @media (max-width:720px){.controls{grid-template-columns:repeat(2,1fr)} header{flex-direction:column; align-items:flex-start} .actions{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Lorem Ipsum Generator</h1>
+        <div class="small">Generate placeholder text for mockups, layouts and testing.</div>
+      </div>
+      <div style="margin-left:auto" class="chip">HTML • CSS • JavaScript</div>
+    </header><div class="controls">
+  <div class="control">
+    <label>Mode</label>
+    <select id="mode">
+      <option value="paragraphs">Paragraphs</option>
+      <option value="words">Words</option>
+      <option value="sentences">Sentences</option>
+    </select>
+  </div>
+
+  <div class="control">
+    <label>Count</label>
+    <input id="count" type="number" min="1" max="200" value="5" />
+  </div>
+
+  <div class="control">
+    <label>Words / Paragraph</label>
+    <input id="per" type="number" min="4" max="200" value="24" />
+  </div>
+
+  <div class="control">
+    <label>Options</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <label class="toggle"><input id="startWithLorem" type="checkbox" checked/> Start with "Lorem"</label>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button id="generate" class="btn-primary">Generate</button>
+  <button id="copy" class="btn-ghost">Copy</button>
+  <button id="download" class="btn-ghost">Download .txt</button>
+  <button id="clear" class="btn-ghost">Clear</button>
+</div>
+
+<div class="toolbar">
+  <div class="small">Preview</div>
+  <div class="flex">
+    <div class="small">Theme</div>
+    <select id="themeSelect">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
+</div>
+
+<div id="output" class="output" contenteditable="false" aria-live="polite"></div>
+
+<div class="footer">
+  <div class="small">Tip: Use this for mockups, documentation, and demos.</div>
+  <div class="flex small">Made with ♥ — Customize freely</div>
+</div>
+
+  </div>  <script>
+    // Simple Lorem word bank (classic)
+    const LOREM_WORDS = `(lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur).split(' ')`;
+
+    const el = id => document.getElementById(id);
+    const output = el('output');
+    const mode = el('mode');
+    const count = el('count');
+    const per = el('per');
+    const startWithLorem = el('startWithLorem');
+    const generateBtn = el('generate');
+    const copyBtn = el('copy');
+    const downloadBtn = el('download');
+    const clearBtn = el('clear');
+    const themeSelect = el('themeSelect');
+
+    function randInt(max){ return Math.floor(Math.random()*max); }
+    function pickWord(){ return LOREM_WORDS[randInt(LOREM_WORDS.length)]; }
+
+    function makeSentence(wordCount){
+      let w = [];
+      for(let i=0;i<wordCount;i++) w.push(pickWord());
+      let s = w.join(' ');
+      s = s.charAt(0).toUpperCase() + s.slice(1) + '.';
+      return s;
+    }
+
+    function makeParagraph(wordsPer){
+      // make approx sentences of length 8-16 words
+      let p = [];
+      let wordsLeft = wordsPer;
+      while(wordsLeft > 0){
+        let next = Math.min(wordsLeft, 6 + randInt(12)); // 6-17
+        p.push(makeSentence(next));
+        wordsLeft -= next;
+      }
+      return p.join(' ');
+    }
+
+    function generate(){
+      const m = mode.value;
+      const c = Math.max(1, Math.min(200, parseInt(count.value) || 1));
+      const perVal = Math.max(4, Math.min(400, parseInt(per.value) || 24));
+
+      let result = '';
+
+      if(m === 'words'){
+        const words = [];
+        for(let i=0;i<c;i++) words.push(pickWord());
+        result = words.join(' ');
+        if(startWithLorem.checked) result = 'Lorem ipsum ' + result;
+      } else if(m === 'sentences'){
+        const sentences = [];
+        for(let i=0;i<c;i++) sentences.push(makeSentence(4 + randInt(12)));
+        result = sentences.join(' ');
+        if(startWithLorem.checked && result.trim().length > 0) result = 'Lorem ipsum dolor sit amet. ' + result;
+      } else {
+        // paragraphs
+        const paras = [];
+        for(let i=0;i<c;i++){
+          paras.push(makeParagraph(perVal));
+        }
+        result = paras.map(p=>'<p>'+p+'</p>').join('\n\n');
+        if(startWithLorem.checked){
+          // ensure first paragraph starts with Lorem ipsum
+          result = result.replace('<p>', '<p>Lorem ipsum ');
+        }
+      }
+
+      // Render
+      if(mode.value === 'paragraphs'){
+        output.innerHTML = result;
+      } else {
+        // plain text
+        output.textContent = result;
+      }
+    }
+
+    generateBtn.addEventListener('click', generate);
+
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(mode.value === 'paragraphs' ? output.innerText : output.textContent);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=>copyBtn.textContent='Copy',1200);
+      }catch(e){
+        alert('Copy failed — select the text and press Ctrl+C');
+      }
+    });
+
+    downloadBtn.addEventListener('click', ()=>{
+      const text = mode.value === 'paragraphs' ? output.innerText : output.textContent;
+      const blob = new Blob([text], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'lorem.txt'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    clearBtn.addEventListener('click', ()=>{ output.innerHTML=''; });
+
+    themeSelect.addEventListener('change', ()=>{
+      if(themeSelect.value === 'light'){
+        document.body.style.background = '#f5f7fb'; document.body.style.color = '#0b1220';
+        document.documentElement.style.setProperty('--card','#ffffff'); document.documentElement.style.setProperty('--glass','rgba(13,18,24,0.04)');
+      }else{
+        document.body.style.background = 'linear-gradient(180deg,#081028 0%, #071024 100%)'; document.body.style.color = '#e6eef6';
+        document.documentElement.style.setProperty('--card','#0b1220'); document.documentElement.style.setProperty('--glass','rgba(255,255,255,0.04)');
+      }
+    });
+
+    // Generate default
+    generate();
+  </script></body>
+</html>
